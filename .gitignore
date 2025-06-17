@@ -1,0 +1,22 @@
+# === IDE and OS files ===
+.vscode/
+*.log
+.DS_Store
+Thumbs.db
+
+# === Java compiled classes and build directories ===
+*.class
+/bin/
+lib/javafx-sdk-*/bin/
+lib/javafx-sdk-*/legal/
+lib/javafx-sdk-*/src.zip
+
+# === Database files ===
+*.db
+
+# === Java libraries (JARs and SDKs) ===
+*.jar
+lib/
+
+# === Git-related ===
+filelist.txt
