@@ -1,0 +1,74 @@
+package Batch1_POSG4;
+
+//encapsulated class for adding new product to database
+
+import java.sql.*;
+
+public class AddNewProductDB {
+private static final String INSERT_PRODUCT_SQL = "INSERT INTO tbl_Product(name, description, price, category_id, barcode) VALUES (?, ?, ?, ?, ?)";
+    private static final String INSERT_INVENTORY_SQL = "INSERT INTO tbl_Inventory(product_id, quantity, location) VALUES (?, ?, ?)";
+
+    private final String dbUrl;
+
+    public AddNewProductDB(String dbUrl) {
+        this.dbUrl = dbUrl;
+    }
+
+    public long registerNewProduct(
+        String name,
+        String description,
+        double price,
+        int categoryId,
+        String barcode,
+        int initialQuantity,
+        String location
+    ) throws SQLException {
+        Connection conn = DriverManager.getConnection(dbUrl);
+        try {
+            //wag kalimutan dahil merong foreign key
+            conn.createStatement().execute("PRAGMA foreign_keys = ON");
+            conn.setAutoCommit(false);
+            //
+
+            long productId = insertProduct(conn, name, description, price, categoryId, barcode);
+            insertInventory(conn, productId, initialQuantity, location);
+
+            conn.commit();
+            return productId;
+        } catch (SQLException e) {
+            conn.rollback();
+            throw e;
+        } finally {
+            conn.close();
+        }
+    }
+    private long insertProduct(Connection conn,String name,String description,double price,int categoryId,String barcode) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                INSERT_PRODUCT_SQL, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, name);
+            ps.setString(2, description);
+            ps.setDouble(3, price);
+            ps.setInt(4, categoryId);
+            ps.setString(5, barcode);
+
+            if (ps.executeUpdate() == 0) {
+                throw new SQLException("Failed to insert product.");
+            }
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                } else {
+                    throw new SQLException("No product ID obtained.");
+                }
+            }
+        }
+    }
+    private void insertInventory(Connection conn,long productId,int quantity,String location) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(INSERT_INVENTORY_SQL)) {
+            ps.setLong(1, productId);
+            ps.setInt(2, quantity);
+            ps.setString(3, location);
+            ps.executeUpdate();
+        }
+    }
+}
