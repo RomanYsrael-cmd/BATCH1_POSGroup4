@@ -1,16 +1,18 @@
-package Batch1_POSG4;
+package Batch1_POSG4.dao;
 
+//DAO
 //encapsulated class for adding new product to database
+//
 
 import java.sql.*;
 
-public class AddNewProductDB {
-private static final String INSERT_PRODUCT_SQL = "INSERT INTO tbl_Product(name, description, price, category_id, barcode) VALUES (?, ?, ?, ?, ?)";
+public class DAOAddNewProcduct {
+    private static final String INSERT_PRODUCT_SQL = "INSERT INTO tbl_Product(name, description, price, stock_quantity, category_id, barcode) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String INSERT_INVENTORY_SQL = "INSERT INTO tbl_Inventory(product_id, quantity, location) VALUES (?, ?, ?)";
 
     private final String dbUrl;
 
-    public AddNewProductDB(String dbUrl) {
+    public DAOAddNewProcduct(String dbUrl) {
         this.dbUrl = dbUrl;
     }
 
@@ -28,9 +30,8 @@ private static final String INSERT_PRODUCT_SQL = "INSERT INTO tbl_Product(name, 
             //wag kalimutan dahil merong foreign key
             conn.createStatement().execute("PRAGMA foreign_keys = ON");
             conn.setAutoCommit(false);
-            //
-
-            long productId = insertProduct(conn, name, description, price, categoryId, barcode);
+            
+            long productId = insertProduct(conn, name, description, price, initialQuantity ,categoryId, barcode);
             insertInventory(conn, productId, initialQuantity, location);
 
             conn.commit();
@@ -42,14 +43,16 @@ private static final String INSERT_PRODUCT_SQL = "INSERT INTO tbl_Product(name, 
             conn.close();
         }
     }
-    private long insertProduct(Connection conn,String name,String description,double price,int categoryId,String barcode) throws SQLException {
+    
+    private long insertProduct(Connection conn,String name,String description,double price, int quantity, int categoryId,String barcode) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
                 INSERT_PRODUCT_SQL, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, name);
             ps.setString(2, description);
             ps.setDouble(3, price);
-            ps.setInt(4, categoryId);
-            ps.setString(5, barcode);
+            ps.setInt(4, quantity);
+            ps.setInt(5, categoryId);
+            ps.setString(6, barcode);
 
             if (ps.executeUpdate() == 0) {
                 throw new SQLException("Failed to insert product.");

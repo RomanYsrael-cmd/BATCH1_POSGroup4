@@ -5,7 +5,7 @@
             "type": "java",
             "name": "Launch JavaFX App",
             "request": "launch",
-            "mainClass": "Batch1_POSG4.LoginClass",
+            "mainClass": "Batch1_POSG4.App",
             "vmArgs": "--module-path lib/javafx-sdk-24.0.1/lib --add-modules javafx.controls,javafx.fxml -cp lib/sqlite-jdbc-3.42.0.0.jar"
         }
     ]

@@ -1,4 +1,4 @@
-package Batch1_POSG4;
+package Batch1_POSG4.controller;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import Batch1_POSG4.util.Sha256Hasher;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,24 +24,25 @@ public class LoginController {
     private TextField usernameField;
     @FXML 
     private PasswordField passwordField;
-    @FXML 
+    
     private Connection connect() {
         try {
             String url = "jdbc:sqlite:db/db_pos_g4.db";
             return DriverManager.getConnection(url);
         } catch (SQLException e) {
-            Alert alert = new Alert(null);
-            alert.setContentText("Database Error");
+            new Alert(Alert.AlertType.ERROR, "Database Error:\n" + e.getMessage()).showAndWait();
             return null;
         }
     }
     @FXML
     private void handleLogin(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        String user = usernameField.getText();
+        String user = usernameField.getText().strip();
         String pass1 = passwordField.getText();
-        if (user == "" || pass1 == "") {
+
+        if (user .isBlank() || pass1.isBlank()) {
             alert.setContentText("Please do not leave any of the field in blank");
+            return;
         }
         else{
             Sha256Hasher pass2 = new Sha256Hasher(pass1);
@@ -56,8 +58,9 @@ public class LoginController {
                     if (rs.next()) {
                         alert.setContentText("Login Success");
                         try {
-                            FXMLLoader loader = new FXMLLoader(getClass().getResource("POSMainMenu.fxml"));
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSMainMenu.fxml"));
                             Parent mainMenuRoot = loader.load();
+
 
                             Stage stageMenu = new Stage();
                             stageMenu.setTitle("Main Menu");
@@ -73,8 +76,9 @@ public class LoginController {
                         alert.setContentText("Invalid username or password.");
                     }
                 }
-            } catch (Exception e) {
-                alert.setContentText(e.getMessage());
+            } catch (SQLException e) {
+                alert.setContentText(e.getMessage() + "11");
+                new Alert(Alert.AlertType.ERROR, "Database Error:\n" + e.getMessage()).showAndWait();
             }
         }
         alert.showAndWait();

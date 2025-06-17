@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="592.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Batch1_POSG4.AddInventoryController">
+<VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="592.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Batch1_POSG4.controller.AddInventoryController">
    <children>
       <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Product Code" VBox.vgrow="ALWAYS">
          <font>

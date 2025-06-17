@@ -1,4 +1,4 @@
-package Batch1_POSG4;
+package Batch1_POSG4.controller;
 
 import java.io.IOException;
 
@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import Batch1_POSG4.dao.DAOAddNewProcduct;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -73,11 +74,11 @@ public class AddInventoryController {
             e.printStackTrace();
         }
     }
-    
+    /*
     public void handleClose(Stage inventoryStage, InventoryController caller) {
         try 
         {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("POSInventory.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSInventory.fxml"));
             Parent mainInventory = loader.load();
             Stage stageInventory = new Stage();
             stageInventory.setScene(new Scene(mainInventory));
@@ -88,19 +89,26 @@ public class AddInventoryController {
             System.out.println(e.getMessage());
         }
     }
+     */
     @FXML
     private void handlesAdd(ActionEvent event) {
         // Setup DB connection
         String dbUrl = "jdbc:sqlite:db/db_pos_g4.db";
-        AddNewProductDB svc = new AddNewProductDB(dbUrl);
+        DAOAddNewProcduct svc = new DAOAddNewProcduct(dbUrl);
 
         // Get input values
         String pName = txtProductName.getText();
         String pDescription = txtProductDescription.getText();
         Double pPrice = Double.parseDouble(txtPrice.getText());
-        Integer pCategoryID = cmbCategory.getSelectionModel().getSelectedIndex();
+
+        //???
+        Integer pCategoryID = cmbCategory.getSelectionModel().getSelectedIndex() + 1;
+        System.out.println(pCategoryID);
+        //??
+
         String pBarcode = txtProductCode.getText();
         Integer pQuantity = Integer.parseInt(txtQuantity.getText());
+        
         String pLocation = txtLocation.getText();
 
         try {
@@ -135,7 +143,7 @@ public class AddInventoryController {
     }
     @FXML
     private void handlesCancel(ActionEvent event) throws IOException{
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("POSInventory.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSInventory.fxml"));
         Parent mainInventory = loader.load();
         Stage stageInventory = new Stage();
         stageInventory.setTitle("Inventory");

@@ -1,4 +1,4 @@
-package Batch1_POSG4;
+package Batch1_POSG4.controller;
 
 import java.io.IOException;
 //import java.sql.Connection;
@@ -29,23 +29,22 @@ public class MainMenuController {
     //invetory
     @FXML
     private void handleInventory(ActionEvent event) throws IOException{
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("POSInventory.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSInventory.fxml"));
         Parent mainInventory = loader.load();
         InventoryController controller = loader.getController();
 
         Stage stageInventory = new Stage();
         stageInventory.setTitle("Inventory");
         stageInventory.setScene(new Scene(mainInventory));
-
         stageInventory.setOnCloseRequest(e -> {
             e.consume();
             controller.handleClose(stageInventory, this); // Pass reference to controller
         });
 
-        stageInventory.show();
 
         Stage stageMenu = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stageMenu.close();
+        stageInventory.show();
     }
 
     //customers
@@ -81,8 +80,9 @@ public class MainMenuController {
     //exit
     @FXML
     private void handleLogoutExit(ActionEvent event) throws IOException{
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("POSLogin.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSLogin.fxml"));
         Parent mainLogin = loader.load();
+        
         Stage stageLogin = new Stage();
         stageLogin.setTitle("Log In");
         stageLogin.setScene(new Scene(mainLogin));

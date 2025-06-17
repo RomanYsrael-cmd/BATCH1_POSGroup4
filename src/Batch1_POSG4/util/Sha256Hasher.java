@@ -1,4 +1,4 @@
-package Batch1_POSG4;
+package Batch1_POSG4.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

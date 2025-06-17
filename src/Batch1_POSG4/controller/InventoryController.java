@@ -1,4 +1,4 @@
-package Batch1_POSG4;
+package Batch1_POSG4.controller;
 //import java.io.IOException;
 //import java.sql.Connection;
 //import java.sql.DriverManager;
@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Modality;
 //import javafx.fxml.FXMLLoader;
 //import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -25,9 +26,10 @@ import javafx.scene.Node;
 //import javafx.stage.Stage;
 
 public class InventoryController {
+
     public void handleClose(Stage inventoryStage, MainMenuController caller) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("POSMainMenu.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSMainMenu.fxml"));
             Parent mainMenu = loader.load();
             Stage mainMenuStage = new Stage();
             mainMenuStage.setScene(new Scene(mainMenu));
@@ -38,6 +40,7 @@ public class InventoryController {
             System.out.println(e.getMessage());
         }
     }
+
     @FXML
     private void handleSearch(KeyEvent event) {
         // filter logic
@@ -55,24 +58,28 @@ public class InventoryController {
 
     @FXML
     private void handleAddItem(ActionEvent event) throws IOException{
-        //Load AddInventoryUI
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("POSAddInventory.fxml"));
-        Parent mainInventory = loader.load();
-        AddInventoryController controller = loader.getController();
+    //Load AddInventoryUI
+    FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSAddInventory.fxml"));
+    Parent mainInventory = loader.load();
+    AddInventoryController controller = loader.getController();
+
+    Stage stageInventory = new Stage();
+    stageInventory.setTitle("Add Inventory");
+    stageInventory.setScene(new Scene(mainInventory));
+
+    //Set as modal dialog
+    stageInventory.initModality(Modality.APPLICATION_MODAL);
+
+    //Set owner
+    Stage owner = (Stage) ((Node) event.getSource()).getScene().getWindow();
+    stageInventory.initOwner(owner);
+
+    // Load categories
+    controller.loadCategories();
+
+    // Show as modal dialog and wait
+    stageInventory.showAndWait();
         
-        Stage stageInventory = new Stage();
-        stageInventory.setTitle("Add Inventory");
-        stageInventory.setScene(new Scene(mainInventory));
-        controller.loadCategories();
-        stageInventory.setOnCloseRequest(e -> {
-            e.consume();
-            controller.handleClose(stageInventory, this);
-        });
-
-        stageInventory.show();
-
-        Stage stageMenu = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stageMenu.close();
     }
 
     @FXML
