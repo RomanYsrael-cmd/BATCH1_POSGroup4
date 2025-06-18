@@ -4,7 +4,7 @@ package Batch1_POSG4.dao;
 import java.sql.*;
 // Imports JDBC classes (Connection, DriverManager, SQLException, PreparedStatement, ResultSet, Statement)
 
-public class DAOAddNewProcduct {
+public class InventoryAddDAO {
     
     // SQL template for inserting a new product into tbl_Product
     private static final String INSERT_PRODUCT_SQL = "INSERT INTO tbl_Product(name, description, price, stock_quantity, category_id, barcode) VALUES (?, ?, ?, ?, ?, ?)";
@@ -29,7 +29,7 @@ public class DAOAddNewProcduct {
 
     // Constructor that saves the database URL for later connections
     // ALWAYS ADD
-    public DAOAddNewProcduct(String dbUrl) {
+    public InventoryAddDAO(String dbUrl) {
         this.dbUrl = dbUrl;
     }
     

@@ -28,24 +28,24 @@ public class MainMenuController {
 
     //invetory
     @FXML
-    private void handleInventory(ActionEvent event) throws IOException{
+    private void handleInventory(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSInventory.fxml"));
         Parent mainInventory = loader.load();
-        InventoryController controller = loader.getController();
 
+        InventoryController controller = loader.getController();
         Stage stageInventory = new Stage();
         stageInventory.setTitle("Inventory");
         stageInventory.setScene(new Scene(mainInventory));
         stageInventory.setOnCloseRequest(e -> {
             e.consume();
-            controller.handleClose(stageInventory, this); // Pass reference to controller
+            controller.handleClose(stageInventory, this);
         });
 
-
-        Stage stageMenu = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stageMenu.close();
         stageInventory.show();
+
+        ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
     }
+
 
     //customers
     @FXML
