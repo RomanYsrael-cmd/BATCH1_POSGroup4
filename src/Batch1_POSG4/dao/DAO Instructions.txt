@@ -3,7 +3,7 @@ PAG MAY TANONG MAG CHAT SA GC
 
 
 DAO Instructions.
-Data Access Object is an encapsulated class, that insert, update, or deletes, data from a database
+Database Access Object is an encapsulated class, that insert, update, or deletes, data from a database
 For example: 
 See DAOAddNewProduct.java
 
@@ -26,6 +26,27 @@ alexcvzz.vscode-sqlite
 
 
 This is the list of dao na need natin gawin. 
+Roman
+ProductDao
+InventoryDao - Done 
+CategoryDao - Done
+ReturnDao
+
+Kyle
+SaleItemDao
+SaleDao
+
+Larz
+CustomerDao
+DiscountDao
+
+Kimberly
+UserDao
+LoginSessionDao
+
+
+Lahat ng DAO nakabase dito sa ERD Chart natin
+https://lucid.app/lucidchart/00f0a381-81ea-4505-84b7-40ebde455fe4/edit?page=0_0&invitationId=inv_c1056478-7b28-43e8-811e-7a5db0e5214a#
 
 1. UserDao
 Package: Batch1_POSG4.dao
