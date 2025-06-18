@@ -3,55 +3,185 @@ Data Access Object is an encapsulated class, that insert, update, or deletes, da
 For example: 
 See DAOAddNewProduct.java
 
+Use VSCode para mas madalian.
+Pero if netbeans want niyo go lang po.
 
-1. UserService
-createUser(...) → tbl_User (INSERT)
-updateUser(...) → tbl_User (UPDATE)
-deleteUser(...) → tbl_User (DELETE)
+If you're gonna use vscode install the following extenstions:
+Search niyo lang sa extensions (Ctrl + Shift + x)
 
-2. LoginSessionService
-startSession(...) → tbl_LoginSession (INSERT)
-endSession(...) → tbl_LoginSession (UPDATE)
+vscjava.vscode-java-pack	
+redhat.java	
+vscjava.vscode-java-debug	
+vscjava.vscode-maven
+vscjava.vscode-gradle	
+vscjava.vscode-java-test	
+vscjava.vscode-java-dependency	
+DotJoshJohnson.xml
+bertrandmartel.javafx-support
+alexcvzz.vscode-sqlite
 
-3. CustomerService
-addCustomer(...) → tbl_Customer (INSERT)
-updateCustomer(...) → tbl_Customer (UPDATE)
-deleteCustomer(...) → tbl_Customer (DELETE)
 
-4. CategoryService
-createCategory(...) → tbl_Category (INSERT)
-updateCategory(...) → tbl_Category (UPDATE)
-deleteCategory(...) → tbl_Category (DELETE)
+This is the list of dao na need natin gawin. 
 
-5. ProductService
-registerNewProduct(...) → tbl_Product (INSERT)
-    → tbl_Inventory (INSERT)
-updateProduct(...) → tbl_Product (UPDATE)
-deleteProduct(...) → tbl_Product (DELETE)
-    (and—if you’ve set cascade—tbl_Inventory and/or tbl_SaleItem via FK CASCADE)
+1. UserDao
+Package: Batch1_POSG4.dao
+Table: tbl_User
+Constructor: public UserDao(String dbUrl)
+Methods:
+public long createUser(String username, String passwordHash, String role)
+→ INSERT into tbl_User
+public User findById(long userId)
+→ SELECT from tbl_User
+public User findByUsername(String username)
+→ SELECT from tbl_User
+public void updateUser(long userId, String username, String passwordHash, String role)
+→ UPDATE tbl_User
+public void deleteUser(long userId)
+→ DELETE from tbl_User
 
-6. InventoryService
-initializeInventory(...) → tbl_Inventory (INSERT)
-adjustStock(...) → tbl_Inventory (UPDATE)
-transferStock(...) → tbl_Inventory (UPDATE on two rows: source & destination)
 
-7. SaleService
-createSale(...) → tbl_Sale (INSERT)
-updateSaleHeader(...) → tbl_Sale (UPDATE)
-cancelSale(...) → tbl_Sale (UPDATE or DELETE)
-    (often also cascades to tbl_SaleItem, tbl_Discount, tbl_Return)
+2. LoginSessionDao
+Package: Batch1_POSG4.dao
+Table: tbl_LoginSession
+Constructor: public LoginSessionDao(String dbUrl)
+Methods:
+public long startSession(long userId, String ipAddress, String deviceInfo)
+→ INSERT into tbl_LoginSession
+public void endSession(long sessionId)
+→ UPDATE logout_time in tbl_LoginSession
+public LoginSession findById(long sessionId)
+→ SELECT from tbl_LoginSession
+public List<LoginSession> listActiveSessions(long userId)
+→ SELECT where logout_time IS NULL
 
-8. SaleItemService
-addItemToSale(...) → tbl_SaleItem (INSERT)
-updateSaleItem(...) → tbl_SaleItem (UPDATE)
-removeItemFromSale(...) → tbl_SaleItem (DELETE)
+3. CustomerDao
+Package: Batch1_POSG4.dao
+Table: tbl_Customer
+Constructor: public CustomerDao(String dbUrl)
+Methods:
+public long addCustomer(String name, String email, String phone)
+→ INSERT
+public Customer findById(long customerId)
+→ SELECT
+public void updateCustomer(long customerId, String name, String email, String phone, int loyaltyPoints)
+→ UPDATE
+public void deleteCustomer(long customerId)
+→ DELETE
 
-9. DiscountService
-applyDiscountToSale(...) → tbl_Discount (INSERT)
-updateDiscount(...) → tbl_Discount (UPDATE)
-removeDiscount(...) → tbl_Discount (DELETE)
+4. CategoryDao
+Package: Batch1_POSG4.dao
+Table: tbl_Category
+Constructor: public CategoryDao(String dbUrl)
+Methods:
+public long createCategory(String name, String description)
+→ INSERT
+public Category findById(long categoryId)
+→ SELECT
+public List<Category> listAllCategories()
+→ SELECT *
+public void updateCategory(long categoryId, String name, String description)
+→ UPDATE
+public void deleteCategory(long categoryId)
+→ DELETE
 
-10. ReturnService
-processReturn(...) → tbl_Return (INSERT)
-    (optionally → tbl_Inventory UPDATE if you restock)
+5. ProductDao
+Package: Batch1_POSG4.dao
+Tables: tbl_Product, tbl_Inventory
+Constructor: public ProductDao(String dbUrl)
+Methods:
+public long registerNewProduct(String name, String desc, double price, int stockQty, int categoryId, String barcode, int initQty, String location)
+→ wraps two INSERTs (one into tbl_Product, one into tbl_Inventory) in a single transaction
+public Product findById(long productId)
+→ SELECT * JOIN tbl_Category
+public List<Product> listByCategory(int categoryId)
+→ SELECT where category_id=?
+public void updateProduct(long productId, String name, String desc, double price, int stockQty, int categoryId, String barcode)
+→ UPDATE tbl_Product
+public void deleteProduct(long productId)
+→ DELETE from tbl_Product (cascading deletes via FK)
 
+6. InventoryDao
+Package: Batch1_POSG4.dao
+Table: tbl_Inventory
+Constructor: public InventoryDao(String dbUrl)
+Methods:
+public void initializeInventory(long productId, int quantity, String location)
+→ INSERT
+public Inventory findByProduct(long productId)
+→ SELECT WHERE product_id=?
+public void adjustStock(long productId, int delta)
+→ UPDATE quantity = quantity + delta
+public void transferStock(long productId, String fromLoc, String toLoc, int qty)
+→ two UPDATEs within one transaction
+
+7. SaleDao
+Package: Batch1_POSG4.dao
+Table: tbl_Sale
+Constructor: public SaleDao(String dbUrl)
+Methods:
+public long createSale(long userId, Integer customerId, String paymentMethod)
+→ INSERT; returns sale_id
+public Sale findById(long saleId)
+→ SELECT JOIN User/Customer
+public void updateSaleHeader(long saleId, Integer customerId, String paymentMethod, double totalAmount)
+→ UPDATE
+public void cancelSale(long saleId)
+→ DELETE or set a status='CANCELED' flag
+
+8. SaleItemDao
+Package: Batch1_POSG4.dao
+Table: tbl_SaleItem
+Constructor: public SaleItemDao(String dbUrl)
+Methods:
+public long addItemToSale(long saleId, long productId, int qty, double unitPrice)
+→ INSERT; returns sale_item_id
+public List<SaleItem> listItemsForSale(long saleId)
+→ SELECT WHERE sale_id=?
+public void updateSaleItem(long saleItemId, int newQty)
+→ UPDATE quantity & total_price
+public void removeItemFromSale(long saleItemId)
+→ DELETE
+
+9. DiscountDao
+Package: Batch1_POSG4.dao
+Table: tbl_Discount
+Constructor: public DiscountDao(String dbUrl)
+Methods:
+public long applyDiscount(long saleId, String desc, double amount, String type)
+→ INSERT
+public List<Discount> listDiscountsForSale(long saleId)
+→ SELECT
+public void updateDiscount(long discountId, double newAmount, String newType)
+→ UPDATE
+public void removeDiscount(long discountId)
+→ DELETE
+
+10. ReturnDao
+Package: Batch1_POSG4.dao
+Table: tbl_Return
+Constructor: public ReturnDao(String dbUrl)
+Methods:
+public long processReturn(long saleItemId, String reason, double refundAmount, boolean restock)
+→ INSERT into tbl_Return; if restock==true, UPDATE tbl_Inventory
+public Return findById(long returnId)
+→ SELECT
+public List<Return> listReturnsForSale(long saleId)
+→ SELECT JOIN tbl_SaleItem → filter by sale_id
+
+
+Implementation Notes for All DAOs
+
+Connection management
+Each DAO’s methods should open a Connection via DriverManager.getConnection(dbUrl), enable PRAGMA foreign_keys = ON, and close in a finally block (or use try-with-resources).
+
+Transactions
+Multi-step operations (e.g. registerNewProduct, transferStock, processReturn) must disable auto-commit, commit on success, and rollback on exception.
+
+Prepared Statements
+Always use PreparedStatement with parameter binding (?) to avoid SQL injection.
+
+Error Handling
+Wrap SQLExceptions, log meaningful messages, and propagate up so the service/UI layer can inform the user.
+
+Return Generated Keys
+For INSERTs with AUTOINCREMENT PKs, use prepareStatement(sql, Statement.RETURN_GENERATED_KEYS) and getGeneratedKeys().
