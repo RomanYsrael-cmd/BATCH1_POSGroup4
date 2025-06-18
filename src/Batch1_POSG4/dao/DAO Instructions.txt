@@ -1,0 +1,57 @@
+DAO Instructions.
+Data Access Object is an encapsulated class, that insert, update, or deletes, data from a database
+For example: 
+See DAOAddNewProduct.java
+
+
+1. UserService
+createUser(...) → tbl_User (INSERT)
+updateUser(...) → tbl_User (UPDATE)
+deleteUser(...) → tbl_User (DELETE)
+
+2. LoginSessionService
+startSession(...) → tbl_LoginSession (INSERT)
+endSession(...) → tbl_LoginSession (UPDATE)
+
+3. CustomerService
+addCustomer(...) → tbl_Customer (INSERT)
+updateCustomer(...) → tbl_Customer (UPDATE)
+deleteCustomer(...) → tbl_Customer (DELETE)
+
+4. CategoryService
+createCategory(...) → tbl_Category (INSERT)
+updateCategory(...) → tbl_Category (UPDATE)
+deleteCategory(...) → tbl_Category (DELETE)
+
+5. ProductService
+registerNewProduct(...) → tbl_Product (INSERT)
+    → tbl_Inventory (INSERT)
+updateProduct(...) → tbl_Product (UPDATE)
+deleteProduct(...) → tbl_Product (DELETE)
+    (and—if you’ve set cascade—tbl_Inventory and/or tbl_SaleItem via FK CASCADE)
+
+6. InventoryService
+initializeInventory(...) → tbl_Inventory (INSERT)
+adjustStock(...) → tbl_Inventory (UPDATE)
+transferStock(...) → tbl_Inventory (UPDATE on two rows: source & destination)
+
+7. SaleService
+createSale(...) → tbl_Sale (INSERT)
+updateSaleHeader(...) → tbl_Sale (UPDATE)
+cancelSale(...) → tbl_Sale (UPDATE or DELETE)
+    (often also cascades to tbl_SaleItem, tbl_Discount, tbl_Return)
+
+8. SaleItemService
+addItemToSale(...) → tbl_SaleItem (INSERT)
+updateSaleItem(...) → tbl_SaleItem (UPDATE)
+removeItemFromSale(...) → tbl_SaleItem (DELETE)
+
+9. DiscountService
+applyDiscountToSale(...) → tbl_Discount (INSERT)
+updateDiscount(...) → tbl_Discount (UPDATE)
+removeDiscount(...) → tbl_Discount (DELETE)
+
+10. ReturnService
+processReturn(...) → tbl_Return (INSERT)
+    (optionally → tbl_Inventory UPDATE if you restock)
+
