@@ -1,3 +1,5 @@
+WAG MAHIYANG GUMAMIT NG AI. SHHH LANGS HAHAHAHAHHAHA
+
 DAO Instructions.
 Data Access Object is an encapsulated class, that insert, update, or deletes, data from a database
 For example: 
