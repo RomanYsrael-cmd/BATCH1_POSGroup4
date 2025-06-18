@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import Batch1_POSG4.dao.DAOAddNewProcduct;
+import Batch1_POSG4.dao.InventoryAddDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -94,7 +94,7 @@ public class AddInventoryController {
     private void handlesAdd(ActionEvent event) {
         // Setup DB connection
         String dbUrl = "jdbc:sqlite:db/db_pos_g4.db";
-        DAOAddNewProcduct svc = new DAOAddNewProcduct(dbUrl);
+        InventoryAddDAO svc = new InventoryAddDAO(dbUrl);
 
         // Get input values
         String pName = txtProductName.getText();
