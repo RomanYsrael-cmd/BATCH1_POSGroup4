@@ -104,7 +104,7 @@ public void updateProduct(long productId, String name, String desc, double price
 public void deleteProduct(long productId)
 → DELETE from tbl_Product (cascading deletes via FK)
 
-6. InventoryDao
+6. InventoryDao (GAWA NA)
 Package: Batch1_POSG4.dao
 Table: tbl_Inventory
 Constructor: public InventoryDao(String dbUrl)
