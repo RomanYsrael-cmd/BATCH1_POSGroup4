@@ -8,11 +8,17 @@ package Batch1_POSG4.controller;
 
 import java.io.IOException;
 
+import Batch1_POSG4.dao.ProductDAO;
+import Batch1_POSG4.view.ProductView;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 //import javafx.fxml.FXMLLoader;
 //import javafx.scene.control.TextField;
@@ -27,6 +33,27 @@ import javafx.scene.Node;
 
 public class InventoryController {
 
+    @FXML private TableView<ProductView> tblInventory;
+    @FXML private TableColumn<ProductView, Integer> colProductCode;
+    @FXML private TableColumn<ProductView, String> colProductName;
+    @FXML private TableColumn<ProductView, String> colCategory;
+    @FXML private TableColumn<ProductView, Integer> colQuantity;
+    @FXML private TableColumn<ProductView, Double> colPrice;
+    @FXML private TableColumn<ProductView, String> colBarcode;
+
+    @FXML
+    public void initialize() {
+        colProductCode.setCellValueFactory(new PropertyValueFactory<>("productCode"));
+        colProductName.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        colCategory.setCellValueFactory(new PropertyValueFactory<>("category"));
+        colQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+        colPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+        colBarcode.setCellValueFactory(new PropertyValueFactory<>("barcode"));
+
+        ProductDAO dao = new ProductDAO();
+        ObservableList<ProductView> list = dao.fetchInventoryWithCategory();
+        tblInventory.setItems(list);
+    }
     public void handleClose(Stage inventoryStage, MainMenuController caller) {
         try {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSMainMenu.fxml"));
