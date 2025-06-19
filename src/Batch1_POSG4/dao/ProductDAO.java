@@ -9,7 +9,6 @@ import Batch1_POSG4.util.DBConnection;
 
 
 public class ProductDAO {
-
     public ObservableList<ProductView> fetchInventoryWithCategory() {
         ObservableList<ProductView> list = FXCollections.observableArrayList();
         String sql = "SELECT p.product_id AS product_code, p.name AS product_name, " +
@@ -33,7 +32,7 @@ public class ProductDAO {
                 ));
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // Or log properly
+            e.printStackTrace(); 
         }
         return list;
     }

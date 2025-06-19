@@ -141,6 +141,7 @@ public class AddInventoryController {
             alert.showAndWait();
         }
     }
+
     @FXML
     private void handlesCancel(ActionEvent event) throws IOException{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSInventory.fxml"));
@@ -153,6 +154,7 @@ public class AddInventoryController {
         Stage stageAddInventory = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stageAddInventory.close();
     }
+    
     @FXML
     private void handlesClear(ActionEvent event) {
         //Clear all fields
@@ -164,4 +166,5 @@ public class AddInventoryController {
         txtLocation.clear();
         cmbCategory.getSelectionModel().clearSelection();
     }
+
 }

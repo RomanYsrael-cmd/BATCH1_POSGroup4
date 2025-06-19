@@ -22,8 +22,17 @@ public class MainMenuController {
 
     //sales
     @FXML
-    private void handleSales(ActionEvent event){
+    private void handleSales(ActionEvent event) throws IOException{
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSSales.fxml"));
+        Parent mainLogin = loader.load();
         
+        Stage stageSales = new Stage();
+        stageSales.setTitle("Sales");
+        stageSales.setScene(new Scene(mainLogin));
+        stageSales.show();
+        
+        Stage menuStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        menuStage.close();        
     }
 
     //invetory
