@@ -3,6 +3,7 @@ package Batch1_POSG4.controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -16,6 +17,9 @@ public class SalesController {
 
     @FXML
     private Button btnCategory;
+
+    @FXML
+    private Button btnCustomers;
 
     @FXML
     private Button btnDiscount;
@@ -60,6 +64,9 @@ public class SalesController {
     private Button btnVoid;
 
     @FXML
+    private CheckBox chkPDWSenior;
+
+    @FXML
     private ComboBox<?> cmbCategory;
 
     @FXML
@@ -72,6 +79,9 @@ public class SalesController {
     private TableView<?> tblSales;
 
     @FXML
+    private TableView<?> tblTotals;
+
+    @FXML
     private TextField txtBarcode;
 
     @FXML
@@ -81,19 +91,18 @@ public class SalesController {
     private TextField txtDiscount;
 
     @FXML
-    private TextField txtGrandTotal;
-
-    @FXML
     private TextField txtSearchItem;
-
-    @FXML
-    private TextField txtTax;
 
     @FXML
     private TextField txtTransactionNumber;
 
     @FXML
     void handlesBarcode(ActionEvent event) {
+
+    }
+
+    @FXML
+    void handlesCustomer(ActionEvent event) {
 
     }
 
@@ -153,6 +162,11 @@ public class SalesController {
     }
 
     @FXML
+    void handlesPDWSenior(ActionEvent event) {
+
+    }
+
+    @FXML
     void handlesPrintReciept(ActionEvent event) {
 
     }
@@ -166,5 +180,4 @@ public class SalesController {
     void handlesVoid(ActionEvent event) {
 
     }
-
 }

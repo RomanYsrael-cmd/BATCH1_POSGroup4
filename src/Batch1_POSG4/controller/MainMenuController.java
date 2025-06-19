@@ -29,6 +29,7 @@ public class MainMenuController {
         Stage stageSales = new Stage();
         stageSales.setTitle("Sales");
         stageSales.setScene(new Scene(mainLogin));
+        stageSales.setMaximized(true);
         stageSales.show();
         
         Stage menuStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -45,6 +46,7 @@ public class MainMenuController {
         Stage stageInventory = new Stage();
         stageInventory.setTitle("Inventory");
         stageInventory.setScene(new Scene(mainInventory));
+        stageInventory.setMaximized(true);
         stageInventory.setOnCloseRequest(e -> {
             e.consume();
             controller.handleClose(stageInventory, this);

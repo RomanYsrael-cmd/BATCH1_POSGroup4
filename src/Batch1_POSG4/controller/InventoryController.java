@@ -33,13 +33,13 @@ import javafx.scene.Node;
 
 public class InventoryController {
 
-    @FXML private TableView<ProductView> tblInventory;
-    @FXML private TableColumn<ProductView, Integer> colProductCode;
-    @FXML private TableColumn<ProductView, String> colProductName;
-    @FXML private TableColumn<ProductView, String> colCategory;
-    @FXML private TableColumn<ProductView, Integer> colQuantity;
-    @FXML private TableColumn<ProductView, Double> colPrice;
-    @FXML private TableColumn<ProductView, String> colBarcode;
+    @FXML public TableView<ProductView> tblInventory;
+    @FXML public TableColumn<ProductView, Integer> colProductCode;
+    @FXML public TableColumn<ProductView, String> colProductName;
+    @FXML public TableColumn<ProductView, String> colCategory;
+    @FXML public TableColumn<ProductView, Integer> colQuantity;
+    @FXML public TableColumn<ProductView, Double> colPrice;
+    @FXML public TableColumn<ProductView, String> colBarcode;
 
     @FXML
     public void initialize() {
@@ -54,6 +54,9 @@ public class InventoryController {
         ObservableList<ProductView> list = dao.fetchInventoryWithCategory();
         tblInventory.setItems(list);
     }
+    @FXML
+    public void populate(){
+    }
     public void handleClose(Stage inventoryStage, MainMenuController caller) {
         try {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSMainMenu.fxml"));
@@ -67,7 +70,12 @@ public class InventoryController {
             System.out.println(e.getMessage());
         }
     }
-
+    private void refreshInventoryTable() {
+        // you can also re-wire your columns here if you like,
+        // but since initialize() already did it, just reset items:
+        ObservableList<ProductView> list = new ProductDAO().fetchInventoryWithCategory();
+        tblInventory.setItems(list);
+    }
     @FXML
     private void handleSearch(KeyEvent event) {
         // filter logic
@@ -84,29 +92,26 @@ public class InventoryController {
     }
 
     @FXML
-    private void handleAddItem(ActionEvent event) throws IOException{
-    //Load AddInventoryUI
-    FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSAddInventory.fxml"));
-    Parent mainInventory = loader.load();
-    AddInventoryController controller = loader.getController();
+    private void handleAddItem(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(
+            "/Batch1_POSG4/view/POSAddInventory.fxml"
+        ));
+        Parent addInvRoot = loader.load();
+        AddInventoryController addCtrl = loader.getController();
 
-    Stage stageInventory = new Stage();
-    stageInventory.setTitle("Add Inventory");
-    stageInventory.setScene(new Scene(mainInventory));
+        // load categories in the dialog  
+        addCtrl.loadCategories();
 
-    //Set as modal dialog
-    stageInventory.initModality(Modality.APPLICATION_MODAL);
+        // show as modal
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(((Node) event.getSource()).getScene().getWindow());
+        dialog.setScene(new Scene(addInvRoot));
+        dialog.setTitle("Add Inventory");
+        dialog.showAndWait();
 
-    //Set owner
-    Stage owner = (Stage) ((Node) event.getSource()).getScene().getWindow();
-    stageInventory.initOwner(owner);
-
-    // Load categories
-    controller.loadCategories();
-
-    // Show as modal dialog and wait
-    stageInventory.showAndWait();
-        
+        // ← this runs *after* the add‐inventory dialog closes:
+        refreshInventoryTable();
     }
 
     @FXML
