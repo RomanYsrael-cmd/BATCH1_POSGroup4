@@ -1,7 +1,13 @@
 package Batch1_POSG4.controller;
 
+import java.io.IOException;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -9,6 +15,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 public class SalesController {
 
@@ -55,7 +63,16 @@ public class SalesController {
     private Button btnItem9;
 
     @FXML
+    private Button btnManageDiscount;
+
+    @FXML
+    private Button btnOpenCash;
+
+    @FXML
     private Button btnPrintReciept;
+
+    @FXML
+    private Button btnReturn;
 
     @FXML
     private Button btnSearch;
@@ -107,8 +124,19 @@ public class SalesController {
     }
 
     @FXML
-    void handlesDiscount(ActionEvent event) {
+    void handlesDiscount(ActionEvent event) throws IOException {
 
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(
+            "/Batch1_POSG4/view/POSDiscount.fxml"
+        ));
+        Parent addInvRoot = loader.load();
+        
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(((Node) event.getSource()).getScene().getWindow());
+        dialog.setScene(new Scene(addInvRoot));
+        dialog.setTitle("Discount Manager");
+        dialog.showAndWait();
     }
 
     @FXML
@@ -162,6 +190,16 @@ public class SalesController {
     }
 
     @FXML
+    void handlesManageDiscount(ActionEvent event) throws IOException {
+
+    }
+
+    @FXML
+    void handlesOpenCash(ActionEvent event) {
+
+    }
+
+    @FXML
     void handlesPDWSenior(ActionEvent event) {
 
     }
@@ -172,6 +210,21 @@ public class SalesController {
     }
 
     @FXML
+    void handlesReturn(ActionEvent event)throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(
+            "/Batch1_POSG4/view/POSReturn.fxml"
+        ));
+        Parent addInvRoot = loader.load();
+        
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(((Node) event.getSource()).getScene().getWindow());
+        dialog.setScene(new Scene(addInvRoot));
+        dialog.setTitle("Returns Manager");
+        dialog.showAndWait();
+    }
+    
+    @FXML
     void handlesSearch(ActionEvent event) {
 
     }
@@ -179,5 +232,20 @@ public class SalesController {
     @FXML
     void handlesVoid(ActionEvent event) {
 
+    }
+    
+    @FXML
+    public void handleClose(Stage salesStage, MainMenuController caller) {
+        try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSMainMenu.fxml"));
+            Parent mainMenu = loader.load();
+            Stage mainMenuStage = new Stage();
+            mainMenuStage.setScene(new Scene(mainMenu));
+            mainMenuStage.setTitle("Main Menu");
+            mainMenuStage.show();
+            salesStage.close();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

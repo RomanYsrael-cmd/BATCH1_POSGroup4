@@ -18,9 +18,9 @@
 
 <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="548.0" prefWidth="761.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Batch1_POSG4.controller.SalesController">
    <children>
-      <HBox prefHeight="35.0" prefWidth="0.0" VBox.vgrow="NEVER">
+      <HBox prefHeight="35.0" prefWidth="0.0">
          <children>
-            <Label prefHeight="30.0" prefWidth="150.0" text="Transaction #" HBox.hgrow="ALWAYS">
+            <Label prefHeight="31.0" prefWidth="114.0" text="Transaction #" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets bottom="5.0" left="15.0" right="5.0" top="5.0" />
                </HBox.margin>
@@ -31,7 +31,7 @@
                   <Font size="15.0" />
                </font>
             </Label>
-            <TextField fx:id="txtTransactionNumber" prefHeight="27.0" prefWidth="640.0" promptText="Auto Generated" HBox.hgrow="ALWAYS">
+            <TextField fx:id="txtTransactionNumber" prefHeight="27.0" prefWidth="464.0" promptText="Auto Generated" HBox.hgrow="SOMETIMES">
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
                </HBox.margin>
@@ -39,14 +39,22 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </padding>
             </TextField>
+            <Button mnemonicParsing="false" prefHeight="27.0" prefWidth="106.0" text="New Transaction" HBox.hgrow="ALWAYS">
+               <HBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </HBox.margin>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Button>
          </children>
          <VBox.margin>
-            <Insets top="5.0" />
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </VBox.margin>
       </HBox>
-      <HBox prefHeight="35.0" prefWidth="0.0" VBox.vgrow="NEVER">
+      <HBox prefHeight="35.0" prefWidth="0.0">
          <children>
-            <Label prefHeight="30.0" prefWidth="150.0" text="Customer Name" HBox.hgrow="ALWAYS">
+            <Label prefHeight="31.0" prefWidth="137.0" text="Customer Name" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets bottom="5.0" left="15.0" right="5.0" top="5.0" />
                </HBox.margin>
@@ -57,7 +65,7 @@
                   <Font size="15.0" />
                </font>
             </Label>
-            <TextField fx:id="txtCustomerName" prefHeight="27.0" prefWidth="546.0" HBox.hgrow="ALWAYS">
+            <TextField fx:id="txtCustomerName" prefHeight="27.0" prefWidth="498.0" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
                </HBox.margin>
@@ -314,10 +322,12 @@
          <children>
             <GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
               <columnConstraints>
+                  <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" percentWidth="16.67" prefWidth="100.0" />
                 <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" percentWidth="16.67" prefWidth="100.0" />
                   <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" percentWidth="16.67" prefWidth="100.0" />
                   <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" percentWidth="16.67" prefWidth="100.0" />
                 <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" percentWidth="16.67" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" percentWidth="16.67" prefWidth="100.0" />
                   <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" percentWidth="16.67" prefWidth="100.0" />
                   <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" percentWidth="16.67" prefWidth="100.0" />
               </columnConstraints>
@@ -325,7 +335,15 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Button fx:id="btnPrintReciept" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesPrintReciept" text="F2 Print Reciept" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                  <Button fx:id="btnOpenCash" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesOpenCash" text="F1 Open Cash" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                     <GridPane.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </GridPane.margin>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </Button>
+                  <Button fx:id="btnPrintReciept" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesPrintReciept" text="F2 Print Reciept" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
@@ -333,7 +351,7 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </GridPane.margin>
                   </Button>
-                  <Button fx:id="btnBarcode" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesBarcode" text="F3 Barcode" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                  <Button fx:id="btnBarcode" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesBarcode" text="F3 Barcode" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
@@ -341,7 +359,7 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </GridPane.margin>
                   </Button>
-                  <Button fx:id="btnSearch" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesSearch" text="F4 Search" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                  <Button fx:id="btnSearch" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesSearch" text="F4 Search" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
@@ -349,7 +367,7 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </GridPane.margin>
                   </Button>
-                  <Button fx:id="btnDiscount" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesDiscount" text="F6 Discount" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                  <Button fx:id="btnDiscount" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesDiscount" text="F6 Discount" GridPane.columnIndex="4" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
@@ -357,7 +375,7 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </GridPane.margin>
                   </Button>
-                  <Button fx:id="btnVoid" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesVoid" text="F7 Void" GridPane.columnIndex="4" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                  <Button fx:id="btnVoid" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesVoid" text="F7 Void" GridPane.columnIndex="5" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
@@ -365,13 +383,21 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </GridPane.margin>
                   </Button>
-                  <Button fx:id="btnEditQuantity" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesEditQuantity" text="F8 Edit Quantity" GridPane.columnIndex="5" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                  <Button fx:id="btnEditQuantity" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesEditQuantity" text="F8 Edit Quantity" GridPane.columnIndex="6" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
                      <GridPane.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </GridPane.margin>
+                  </Button>
+                  <Button fx:id="btnReturn" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesReturn" text="F9 Retruns" GridPane.columnIndex="7" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                     <GridPane.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </GridPane.margin>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
                   </Button>
                </children>
                <HBox.margin>

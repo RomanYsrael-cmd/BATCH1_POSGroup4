@@ -11,7 +11,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="554.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Batch1_POSG4.controller.ReturnsController">
    <children>
       <HBox alignment="CENTER" prefHeight="46.0" prefWidth="600.0">
@@ -36,7 +35,7 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </padding>
             </Label>
-            <TextField maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Transaction #" HBox.hgrow="ALWAYS">
+            <TextField fx:id="txtTransaction" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Transaction #" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </HBox.margin>
@@ -44,7 +43,7 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </padding>
             </TextField>
-            <TextField maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Search Sale" HBox.hgrow="ALWAYS">
+            <TextField fx:id="txtSearchSale" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Search Sale" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </HBox.margin>
@@ -56,7 +55,7 @@
       </HBox>
       <HBox prefHeight="257.0" prefWidth="600.0">
          <children>
-            <TableView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="247.0" prefWidth="407.0" HBox.hgrow="ALWAYS">
+            <TableView fx:id="tblTransactionList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="247.0" prefWidth="407.0" HBox.hgrow="ALWAYS">
               <columns>
                 <TableColumn prefWidth="75.0" text="Select" />
                 <TableColumn prefWidth="75.0" text="Product" />
@@ -94,7 +93,7 @@
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
                         </Label>
-                        <TextField maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Item" HBox.hgrow="ALWAYS">
+                        <TextField fx:id="txtItem" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Item" HBox.hgrow="ALWAYS">
                            <HBox.margin>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
@@ -114,7 +113,7 @@
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
                         </Label>
-                        <TextField maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Sold Quantity" HBox.hgrow="ALWAYS">
+                        <TextField fx:id="txtSoldQty" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Sold Quantity" HBox.hgrow="ALWAYS">
                            <HBox.margin>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
@@ -134,7 +133,7 @@
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
                         </Label>
-                        <TextField maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Reason" HBox.hgrow="ALWAYS">
+                        <TextField fx:id="txtReason" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Reason" HBox.hgrow="ALWAYS">
                            <HBox.margin>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
@@ -154,7 +153,7 @@
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
                         </Label>
-                        <TextField maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Refund" HBox.hgrow="ALWAYS">
+                        <TextField fx:id="txtRefund" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Refund" HBox.hgrow="ALWAYS">
                            <HBox.margin>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
@@ -174,7 +173,7 @@
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
                         </Label>
-                        <CheckBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="27.0" prefWidth="142.0" text="Yes" HBox.hgrow="ALWAYS">
+                        <CheckBox fx:id="chkRestock" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="27.0" prefWidth="142.0" text="Yes" HBox.hgrow="ALWAYS">
                            <HBox.margin>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
@@ -196,7 +195,7 @@
       </HBox>
       <HBox alignment="CENTER" prefHeight="31.0" prefWidth="600.0">
          <children>
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Proccess Return" HBox.hgrow="ALWAYS">
+            <Button fx:id="btnProcess" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesProcess" text="Process Return" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </HBox.margin>
@@ -204,7 +203,7 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </padding>
             </Button>
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="27.0" prefWidth="95.0" text="Cancel" HBox.hgrow="ALWAYS">
+            <Button fx:id="btnCancel" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesCancel" prefHeight="27.0" prefWidth="95.0" text="Cancel" HBox.hgrow="ALWAYS">
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </padding>
@@ -219,7 +218,7 @@
             <Font size="16.0" />
          </font>
       </Label>
-      <TableView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+      <TableView fx:id="tblPastReturns" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
         <columns>
           <TableColumn prefWidth="75.0" text="Return ID" />
           <TableColumn prefWidth="75.0" text="Item" />

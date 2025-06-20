@@ -74,22 +74,7 @@ public class AddInventoryController {
             e.printStackTrace();
         }
     }
-    /*
-    public void handleClose(Stage inventoryStage, InventoryController caller) {
-        try 
-        {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSInventory.fxml"));
-            Parent mainInventory = loader.load();
-            Stage stageInventory = new Stage();
-            stageInventory.setScene(new Scene(mainInventory));
-            stageInventory.setTitle("Main Menu");
-            stageInventory.show();
-            inventoryStage.close();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-     */
+
     @FXML
     private void handlesAdd(ActionEvent event) {
         // Setup DB connection
@@ -141,18 +126,15 @@ public class AddInventoryController {
             alert.showAndWait();
         }
     }
+
     @FXML
     private void handlesCancel(ActionEvent event) throws IOException{
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSInventory.fxml"));
-        Parent mainInventory = loader.load();
-        Stage stageInventory = new Stage();
-        stageInventory.setTitle("Inventory");
-        stageInventory.setScene(new Scene(mainInventory));
-        stageInventory.show();
-        
-        Stage stageAddInventory = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stageAddInventory.close();
+        Stage dlg = (Stage)((Node)event.getSource()).getScene().getWindow();
+        dlg.close();
+
     }
+    
+
     @FXML
     private void handlesClear(ActionEvent event) {
         //Clear all fields

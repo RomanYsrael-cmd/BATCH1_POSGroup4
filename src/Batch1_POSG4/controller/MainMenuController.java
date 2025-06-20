@@ -1,21 +1,13 @@
 package Batch1_POSG4.controller;
 
 import java.io.IOException;
-//import java.sql.Connection;
-//import java.sql.DriverManager;
-//import java.sql.PreparedStatement;
-//import java.sql.ResultSet;
-//import java.sql.SQLException;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-//import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-//import javafx.scene.control.PasswordField;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-//import javafx.scene.control.Alert;
 import javafx.scene.Node;
 
 public class MainMenuController {
@@ -24,16 +16,21 @@ public class MainMenuController {
     @FXML
     private void handleSales(ActionEvent event) throws IOException{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSSales.fxml"));
-        Parent mainLogin = loader.load();
-        
+        Parent mainSales = loader.load();
+
+        SalesController controller = loader.getController();
         Stage stageSales = new Stage();
         stageSales.setTitle("Sales");
-        stageSales.setScene(new Scene(mainLogin));
+        stageSales.setScene(new Scene(mainSales));
         stageSales.setMaximized(true);
+        stageSales.setOnCloseRequest(e -> {
+            e.consume();
+            controller.handleClose(stageSales, this);
+        });
+
         stageSales.show();
-        
-        Stage menuStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        menuStage.close();        
+
+        ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
     }
 
     //invetory
@@ -66,8 +63,23 @@ public class MainMenuController {
 
     //Employees
     @FXML
-    private void handleEmployees(ActionEvent event){
-        
+    private void handleEmployees(ActionEvent event) throws IOException{
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSUsers.fxml"));
+        Parent mainUsers = loader.load();
+
+        UserController controller = loader.getController();
+        Stage stageUsers = new Stage();
+        stageUsers.setTitle("Users");
+        stageUsers.setScene(new Scene(mainUsers));
+        stageUsers.setMaximized(true);
+        stageUsers.setOnCloseRequest(e -> {
+            e.consume();
+            controller.handleClose(stageUsers, this);
+        });
+
+        stageUsers.show();
+
+        ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
     }
 
     //Reports
@@ -87,7 +99,6 @@ public class MainMenuController {
     private void handleUtilitiesTools(ActionEvent event){
 
     }
-    
     //exit
     @FXML
     private void handleLogoutExit(ActionEvent event) throws IOException{
