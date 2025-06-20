@@ -1,6 +1,152 @@
-
 package Batch1_POSG4.dao;
 
-public class ReturnDAO {
+import Batch1_POSG4.model.ReturnModel;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
+import java.sql.*;
+
+public class ReturnDAO {
+    private final String dbUrl;
+
+    private static final String INSERT_RETURN_SQL =
+        "INSERT INTO tbl_Return(sale_item_id, reason, refund_amount) VALUES (?, ?, ?)";
+
+    private static final String SELECT_BY_ID_SQL =
+        "SELECT return_id, sale_item_id, return_date, reason, refund_amount " +
+        "FROM tbl_Return WHERE return_id = ?";
+
+    private static final String SELECT_BY_SALE_SQL =
+        "SELECT r.return_id, r.sale_item_id, r.return_date, r.reason, r.refund_amount " +
+        "FROM tbl_Return r " +
+        "JOIN tbl_SaleItem si ON r.sale_item_id = si.sale_item_id " +
+        "WHERE si.sale_id = ? " +
+        "ORDER BY r.return_date DESC";
+
+    private static final String SELECT_SALEITEM_SQL =
+        "SELECT product_id, quantity FROM tbl_SaleItem WHERE sale_item_id = ?";
+
+    private static final String UPDATE_INVENTORY_SQL =
+        "UPDATE tbl_Inventory SET quantity = quantity + ? WHERE product_id = ?";
+
+    public ReturnDAO(String dbUrl) {
+        this.dbUrl = dbUrl;
+    }
+
+    /**
+     * Inserts a return record.  If restock=true, also increments
+     * tbl_Inventory.quantity by the original sale quantity.
+     * Returns the generated return_id.
+     */
+    public long processReturn(long saleItemId,
+                              String reason,
+                              double refundAmount,
+                              boolean restock) throws SQLException {
+        try (Connection conn = DriverManager.getConnection(dbUrl)) {
+            // enforce FK and start transaction
+            conn.createStatement().execute("PRAGMA foreign_keys = ON");
+            conn.setAutoCommit(false);
+
+            long returnId;
+            // 1) Insert return record
+            try (PreparedStatement ps = conn.prepareStatement(
+                    INSERT_RETURN_SQL, Statement.RETURN_GENERATED_KEYS)) {
+                ps.setLong(1, saleItemId);
+                ps.setString(2, reason);
+                ps.setDouble(3, refundAmount);
+                if (ps.executeUpdate() == 0) {
+                    throw new SQLException("Creating return failed, no rows affected.");
+                }
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (!rs.next()) {
+                        throw new SQLException("Creating return failed, no ID obtained.");
+                    }
+                    returnId = rs.getLong(1);
+                }
+            }
+
+            // 2) Optionally restock
+            if (restock) {
+                long productId;
+                int qty;
+                // fetch original sale quantity + product
+                try (PreparedStatement ps1 = conn.prepareStatement(SELECT_SALEITEM_SQL)) {
+                    ps1.setLong(1, saleItemId);
+                    try (ResultSet rs1 = ps1.executeQuery()) {
+                        if (!rs1.next()) {
+                            throw new SQLException("SaleItem not found: " + saleItemId);
+                        }
+                        productId = rs1.getLong("product_id");
+                        qty       = rs1.getInt("quantity");
+                    }
+                }
+                // update inventory
+                try (PreparedStatement ps2 = conn.prepareStatement(UPDATE_INVENTORY_SQL)) {
+                    ps2.setInt(1, qty);
+                    ps2.setLong(2, productId);
+                    ps2.executeUpdate();
+                }
+            }
+
+            conn.commit();
+            return returnId;
+        }
+    }
+
+    /** Load a single return by its primary key. */
+    public ReturnModel getReturnById(long returnId) throws SQLException {
+        try (Connection conn = DriverManager.getConnection(dbUrl);
+             PreparedStatement ps = conn.prepareStatement(SELECT_BY_ID_SQL)) {
+            ps.setLong(1, returnId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                return new ReturnModel(
+                    rs.getLong("return_id"),
+                    rs.getLong("sale_item_id"),
+                    rs.getTimestamp("return_date"),
+                    rs.getString("reason"),
+                    rs.getDouble("refund_amount")
+                );
+            }
+        }
+    }
+
+    /**
+     * List all returns associated with a given sale.
+     * Returns an ObservableList for easy JavaFX binding.
+     */
+    public ObservableList<ReturnModel> listReturnsForSale(long saleId) throws SQLException {
+        ObservableList<ReturnModel> results = FXCollections.observableArrayList();
+        try (Connection conn = DriverManager.getConnection(dbUrl);
+             PreparedStatement ps = conn.prepareStatement(SELECT_BY_SALE_SQL)) {
+            ps.setLong(1, saleId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    results.add(new ReturnModel(
+                        rs.getLong("return_id"),
+                        rs.getLong("sale_item_id"),
+                        rs.getTimestamp("return_date"),
+                        rs.getString("reason"),
+                        rs.getDouble("refund_amount")
+                    ));
+                }
+            }
+        }
+        return results;
+    }
 }
+
+//Usage for later
+
+/*
+String dbUrl = "jdbc:sqlite:db/db_pos_g4.db";
+ReturnDao dao = new ReturnDao(dbUrl);
+long retId = dao.processReturn(
+123,
+"Defective",
+49.95,
+true
+);
+Return r = dao.getReturnById(retId);
+ObservableList<Return> list = dao.listReturnsForSale(456);
+ */
