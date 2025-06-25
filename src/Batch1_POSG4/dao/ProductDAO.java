@@ -1,12 +1,10 @@
 package Batch1_POSG4.dao;
 
-//DAO for for shoing list of inventory
 import java.sql.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import Batch1_POSG4.view.ProductView;
 import Batch1_POSG4.util.DBConnection;
-
 
 public class ProductDAO {
     public ObservableList<ProductView> fetchInventoryWithCategory() {

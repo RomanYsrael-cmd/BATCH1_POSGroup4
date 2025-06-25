@@ -9,6 +9,7 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -16,7 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="548.0" prefWidth="761.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Batch1_POSG4.controller.SalesController">
+<VBox fx:id="rootVBOX" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="548.0" prefWidth="761.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Batch1_POSG4.controller.SalesController">
    <children>
       <HBox prefHeight="35.0" prefWidth="0.0">
          <children>
@@ -31,7 +32,7 @@
                   <Font size="15.0" />
                </font>
             </Label>
-            <TextField fx:id="txtTransactionNumber" prefHeight="27.0" prefWidth="464.0" promptText="Auto Generated" HBox.hgrow="SOMETIMES">
+            <TextField fx:id="txtTransactionNumber" editable="false" prefHeight="27.0" prefWidth="464.0" promptText="Auto Generated" HBox.hgrow="SOMETIMES">
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
                </HBox.margin>
@@ -209,7 +210,7 @@
             </GridPane>
             <VBox prefHeight="326.0" prefWidth="237.0" HBox.hgrow="ALWAYS">
                <children>
-                  <TextField fx:id="txtBarcode" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="0.0" prefWidth="227.0" promptText="Barcode">
+                  <TextField fx:id="txtBarcode" maxWidth="1.7976931348623157E308" promptText="Barcode">
                      <VBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </VBox.margin>
@@ -219,10 +220,11 @@
                   </TextField>
                   <TableView fx:id="tblSales" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="145.0" prefWidth="337.0" VBox.vgrow="ALWAYS">
                     <columns>
-                      <TableColumn prefWidth="75.0" text="Product" />
-                      <TableColumn prefWidth="75.0" text="Price/Quantity" />
-                        <TableColumn prefWidth="75.0" text="Quantiy" />
-                        <TableColumn prefWidth="75.0" text="Total" />
+                        <TableColumn fx:id="colProdID" prefWidth="64.0" resizable="false" text="ProductID" />
+                      <TableColumn fx:id="colName" prefWidth="48.0" text="Product" />
+                      <TableColumn fx:id="colPriceQty" prefWidth="75.0" text="Price/Quantity" />
+                        <TableColumn fx:id="colQuantity" prefWidth="75.0" text="Quantiy" />
+                        <TableColumn fx:id="colSubtotal" prefWidth="75.0" text="Subtotal" />
                     </columns>
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -254,6 +256,22 @@
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                      </columnResizePolicy>
                   </TableView>
+                  <TextField fx:id="txtPayment" maxWidth="1.7976931348623157E308" prefHeight="27.0" prefWidth="165.0" promptText="Payment">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <TextField fx:id="txtChange" maxWidth="1.7976931348623157E308" prefHeight="27.0" prefWidth="165.0" promptText="Change" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </TextField>
                   <HBox prefHeight="24.0" prefWidth="347.0">
                      <children>
                         <VBox prefHeight="88.0" prefWidth="122.0">
@@ -351,14 +369,14 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </GridPane.margin>
                   </Button>
-                  <Button fx:id="btnBarcode" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesBarcode" text="F3 Barcode" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
-                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </padding>
+                  <ToggleButton fx:id="btnBarcode" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesBarcode" text="F3 Barcode Mode is OFF" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                      <GridPane.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </GridPane.margin>
-                  </Button>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </ToggleButton>
                   <Button fx:id="btnSearch" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesSearch" text="F4 Search" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

@@ -198,11 +198,10 @@ public class InventoryController  {
         filteredData = new FilteredList<>(masterData, pv -> true);
         tblInventory.setItems(filteredData);
         ObservableList<String> cats = FXCollections.observableArrayList("All Categories");
-        masterData.stream()
-                .map(ProductView::getCategory)
-                .distinct()
-                .sorted()
-                .forEach(cats::add);
+        masterData.stream().map(ProductView::getCategory)
+            .distinct()
+            .sorted()
+            .forEach(cats::add);
         cmbCategory.setItems(cats);
         cmbCategory.getSelectionModel().selectFirst();
     }
@@ -243,17 +242,13 @@ public class InventoryController  {
         Parent addInvRoot = loader.load();
         AddInventoryController addCtrl = loader.getController();
         addCtrl.loadCategories();  // still load the drop-down in the dialog
-
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(((Node) event.getSource()).getScene().getWindow());
         dialog.setScene(new Scene(addInvRoot));
         dialog.setTitle("Add Inventory");
-        dialog.showAndWait();      // <--- this blocks until the user closes
-
-        // now that the ADD screen is closed, refresh your table
+        dialog.showAndWait();   
         refreshInventoryTable();
-
     }
 
     @FXML
