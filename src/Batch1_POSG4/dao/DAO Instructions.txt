@@ -5,7 +5,7 @@ PAG MAY TANONG MAG CHAT SA GC
 DAO Instructions.
 Database Access Object is an encapsulated class, that insert, update, or deletes, data from a database
 For example: 
-See DAOAddNewProduct.java
+See InventoryAddDAO.java
 
 Use VSCode para mas madalian.
 Pero if netbeans want niyo go lang po.

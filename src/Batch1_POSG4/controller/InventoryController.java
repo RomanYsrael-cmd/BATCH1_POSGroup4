@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import Batch1_POSG4.dao.ProductDAO;
+import Batch1_POSG4.util.Session;
 import Batch1_POSG4.view.ProductView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -68,6 +69,7 @@ public class InventoryController  {
     private static final int ROWS_PER_PAGE = 10;
     private int currentPageIndex = 0;
     private ObservableList<ProductView> pageData;
+    long currentUserId = Session.get().getCurrentUser().getUserId();
 
     @FXML
     public void initialize() {

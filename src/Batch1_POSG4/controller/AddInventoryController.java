@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import Batch1_POSG4.dao.InventoryAddDAO;
+import Batch1_POSG4.util.Session;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -43,6 +44,8 @@ public class AddInventoryController {
     
     @FXML
     private TextField txtLocation;
+    
+    long currentUserId = Session.get().getCurrentUser().getUserId();
 
     private Connection connect() {
         // Path to your SQLite DB
