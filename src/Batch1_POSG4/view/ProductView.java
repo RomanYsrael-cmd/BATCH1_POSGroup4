@@ -34,4 +34,9 @@ public class ProductView {
     public SimpleIntegerProperty quantityProperty() { return quantity; }
     public SimpleDoubleProperty priceProperty() { return price; }
     public SimpleStringProperty barcodeProperty() { return barcode; }
+    @Override
+    public String toString() {
+        // show name and price, or whatever you like:
+        return String.format("%s (₱%.2f)", getProductName(), getPrice());
+    }
 }

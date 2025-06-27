@@ -7,6 +7,7 @@ import Batch1_POSG4.util.Session;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -61,8 +62,25 @@ public class MainMenuController {
 
     //customers
     @FXML
-    private void handleCustomer(ActionEvent event){
-        
+    private void handleCustomer(ActionEvent event) throws IOException{
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSCustomer.fxml"));
+        Parent mainCustomer = loader.load();
+
+        CustomerController controller = loader.getController();
+        Stage stageUsers = new Stage();
+        stageUsers.setTitle("Customer");
+        stageUsers.setScene(new Scene(mainCustomer));
+        stageUsers.setMaximized(true);
+        stageUsers.setOnCloseRequest(e -> {
+            e.consume();
+            controller.handleClose(stageUsers, this);
+            controller.btnSelectCustomer.setDisable(true);
+        });
+
+        stageUsers.show();
+
+        ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
+       
     }
 
     //Employees
@@ -88,8 +106,18 @@ public class MainMenuController {
 
     //Reports
     @FXML
-    private void handleReports(ActionEvent event){
-        
+    private void handleReports(ActionEvent event) throws IOException{
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(
+            "/Batch1_POSG4/view/POSReport.fxml"
+        ));
+        Parent root = loader.load();
+
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(((Node)event.getSource()).getScene().getWindow());
+        dialog.setScene(new Scene(root));
+        dialog.setTitle("Monthly Sales Report");
+        dialog.showAndWait();
     }
 
     //Settings

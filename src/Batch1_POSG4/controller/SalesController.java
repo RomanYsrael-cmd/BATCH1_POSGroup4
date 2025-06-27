@@ -40,13 +40,18 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
+import Batch1_POSG4.view.ProductView;
 // 3. Project import
 import Batch1_POSG4.view.SaleItemView;
 import Batch1_POSG4.view.TotalsView;
 import Batch1_POSG4.dao.InventoryAddDAO;
+import Batch1_POSG4.dao.ProductDAO;
+import Batch1_POSG4.dao.ProductDAO.Category;
+
 import Batch1_POSG4.dao.SaleDAO;
+import Batch1_POSG4.model.Customer;
 import Batch1_POSG4.util.Session;
+
 
 
 public class SalesController {
@@ -73,9 +78,9 @@ public class SalesController {
     @FXML private Button btnVoid;
     @FXML private Button btnProceedPayment;
     @FXML private CheckBox chkPDWSenior;
-    @FXML private ComboBox<?> cmbCategory;
+    @FXML private ComboBox<Category> cmbCategory;
     @FXML private Label lblDatTime;
-    @FXML private ListView<?> lstViewItems;
+    @FXML private ListView<ProductView> lstViewItems;
     @FXML private TableView<SaleItemView> tblSales;
     @FXML private TableColumn<SaleItemView, Long> colProdID;
     @FXML private TableColumn<SaleItemView,String> colName;
@@ -93,8 +98,8 @@ public class SalesController {
     @FXML private TextField txtPayment;
     @FXML private TextField txtChange;
     @FXML private Button btnNewTxn;
-
-    
+    @FXML private ComboBox<String>        cmbSearchBy;
+    @FXML private ComboBox<ProductDAO.Category> cmbCategories;
 
     //private boolean barcodeMode = false;
     //private StringBuilder barcodeBuffer = new StringBuilder();
@@ -148,7 +153,39 @@ public class SalesController {
         txtPayment.setDisable(true);
         txtChange.setDisable(true);
         txtBarcode.setDisable(true);
+            
+        cmbSearchBy.getItems().setAll("Name","Barcode");
+        cmbSearchBy.getSelectionModel().selectFirst();
 
+        // 2) categories
+        ObservableList<Category> cats = new ProductDAO().fetchAllCategories();
+        cats.add(0, new Category(null,"All Categories"));
+        cmbCategories.setItems(cats);
+        cmbCategories.getSelectionModel().selectFirst();
+
+        // 3) listeners
+        txtSearchItem.textProperty().addListener((o,a,b)-> refreshProducts());
+        cmbSearchBy.setOnAction(e-> refreshProducts());
+        cmbCategories.setOnAction(e-> refreshProducts());
+
+        // 4) initial load
+        refreshProducts();
+
+    }
+    private void refreshProducts() {
+        String filter   = txtSearchItem.getText().trim();
+        String searchBy = cmbSearchBy.getValue();                     // “Name” or “Barcode”
+        Category cat    = cmbCategories.getValue();                   // model has getCategoryId()
+        Integer catId   = (cat == null ? null : cat.getCategoryId());
+
+        try {
+            ObservableList<ProductView> items =
+                new ProductDAO().search(filter, searchBy, catId);
+            lstViewItems.setItems(items);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            // TODO: show a user-friendly alert
+        }
     }
 
     private void handleGlobalKeyTyped(KeyEvent ev) {
@@ -357,8 +394,31 @@ public class SalesController {
     }
 
     @FXML
-    void handlesCustomer(ActionEvent event) {
+    void handlesCustomer(ActionEvent event) throws IOException {
+            // a) load the FXML
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(
+        "/Batch1_POSG4/view/POSCustomer.fxml"
+        ));
+        Parent dialogRoot = loader.load();
 
+        // b) show as modal dialog
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(((Node) event.getSource()).getScene().getWindow());
+        dialog.setScene(new Scene(dialogRoot));
+        dialog.setTitle("Select Customer");
+        dialog.showAndWait();
+
+        // c) after close, retrieve selection
+        CustomerController cc = loader.getController();
+        Customer chosen = cc.getSelectedCustomer();
+        if (chosen != null) {
+            // store for use on payment
+            this.selectedCustomerId = chosen.getCustomerId();
+
+            // show in UI
+            txtCustomerName.setText(chosen.getName());
+        }
     }
 
     @FXML
@@ -366,50 +426,58 @@ public class SalesController {
 
     }
 
-    @FXML
-    void handlesItem1(ActionEvent event) {
+    @FXML void handlesItem1(ActionEvent e){ addFromList(0); }
+    @FXML void handlesItem2(ActionEvent e){ addFromList(1); }
+    @FXML void handlesItem3(ActionEvent e){ addFromList(2); }
+    @FXML void handlesItem4(ActionEvent e){ addFromList(3); }
+    @FXML void handlesItem5(ActionEvent e){ addFromList(4); }
+    @FXML void handlesItem6(ActionEvent e){ addFromList(5); }
+    @FXML void handlesItem7(ActionEvent e){ addFromList(6); }
+    @FXML void handlesItem8(ActionEvent e){ addFromList(7); }
+    @FXML void handlesItem9(ActionEvent e){ addFromList(8); }
+    
+    private void addFromList(int idx) {
+        // 1) pull the current items out of the ListView
+        ObservableList<ProductView> items = lstViewItems.getItems();
 
+        // 2) guard against out-of-bounds
+        if (idx < 0 || idx >= items.size()) {
+            return;
+        }
+
+        ProductView p = items.get(idx);
+
+        // 3) check stock (your "quantity" column in ProductView)
+        if (p.getQuantity() <= 0) {
+            showAlert("Out of Stock", p.getProductName() + " is unavailable.");
+            return;
+        }
+
+        // 4) duplicate check
+        for (SaleItemView line : saleItems) {
+            if (line.getProductId() == p.getProductCode()) {
+                // bump quantity by 1, up to available stock
+                int newQty = Math.min(p.getQuantity(), line.getQuantity() + 1);
+                line.quantityProperty().set(newQty);
+                tblSales.refresh();
+                updateTotals();
+                return;
+            }
+        }
+
+        // 5) otherwise add a brand-new row
+        saleItems.add(new SaleItemView(
+            /* saleItemId: */   -1,
+            /* saleId: */        currentSaleId,
+            /* productId: */     p.getProductCode(),
+            /* productName: */   p.getProductName(),
+            /* quantity: */      1,
+            /* unitPrice: */     p.getPrice(),
+            /* totalPrice: */    p.getPrice()
+        ));
+        updateTotals();
     }
 
-    @FXML
-    void handlesItem2(ActionEvent event) {
-
-    }
-
-    @FXML
-    void handlesItem3(ActionEvent event) {
-
-    }
-
-    @FXML
-    void handlesItem4(ActionEvent event) {
-
-    }
-
-    @FXML
-    void handlesItem5(ActionEvent event) {
-
-    }
-
-    @FXML
-    void handlesItem6(ActionEvent event) {
-
-    }
-
-    @FXML
-    void handlesItem7(ActionEvent event) {
-
-    }
-
-    @FXML
-    void handlesItem8(ActionEvent event) {
-
-    }
-
-    @FXML
-    void handlesItem9(ActionEvent event) {
-
-    }
 
     @FXML
     void handlesOpenCash(ActionEvent event) {
@@ -473,8 +541,12 @@ public class SalesController {
 
     @FXML
     void handlesVoid(ActionEvent event) {
-
+        saleItems.clear();
+        totalsData.clear();
+        txtPayment.clear();
+        txtChange.clear();
     }
+
     @FXML
     void handlesProceedPayment(ActionEvent event) {
         // 1) validate payment & compute change (as you already do) …

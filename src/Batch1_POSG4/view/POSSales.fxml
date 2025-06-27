@@ -32,7 +32,7 @@
                   <Font size="15.0" />
                </font>
             </Label>
-            <TextField fx:id="txtTransactionNumber" editable="false" prefHeight="27.0" prefWidth="464.0" promptText="Auto Generated" HBox.hgrow="SOMETIMES">
+            <TextField fx:id="txtTransactionNumber" disable="true" editable="false" prefHeight="27.0" prefWidth="464.0" promptText="Auto Generated" HBox.hgrow="SOMETIMES">
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
                </HBox.margin>
@@ -66,7 +66,7 @@
                   <Font size="15.0" />
                </font>
             </Label>
-            <TextField fx:id="txtCustomerName" prefHeight="27.0" prefWidth="498.0" HBox.hgrow="ALWAYS">
+            <TextField fx:id="txtCustomerName" disable="true" editable="false" prefHeight="27.0" prefWidth="498.0" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
                </HBox.margin>
@@ -96,21 +96,24 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
                      <VBox.margin>
-                        <Insets left="5.0" right="5.0" top="5.0" />
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </VBox.margin>
                   </TextField>
-                  <Button fx:id="btnCategory" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Search by Category">
+                  <ComboBox fx:id="cmbCategories" maxWidth="1.7976931348623157E308" prefWidth="150.0" promptText="All Categories">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
+                  </ComboBox>
+                  <ComboBox fx:id="cmbSearchBy" maxWidth="1.7976931348623157E308" prefWidth="150.0" promptText="Search By:">
                      <VBox.margin>
-                        <Insets left="5.0" right="5.0" />
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </VBox.margin>
-                  </Button>
-                  <ComboBox fx:id="cmbCategory" maxWidth="1.7976931348623157E308" prefWidth="150.0">
-                     <VBox.margin>
-                        <Insets left="5.0" right="5.0" />
-                     </VBox.margin>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
                   </ComboBox>
                   <ListView fx:id="lstViewItems" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="344.0" prefWidth="242.0" VBox.vgrow="ALWAYS">
                      <VBox.margin>
