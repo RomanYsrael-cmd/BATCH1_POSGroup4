@@ -2,6 +2,9 @@ package Batch1_POSG4.controller;
 
 import java.io.IOException;
 
+import Batch1_POSG4.util.Session;
+import Batch1_POSG4.model.User;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +14,8 @@ import javafx.scene.Scene;
 import javafx.scene.Node;
 
 public class MainMenuController {
+
+    long me = Session.get().getCurrentUser().getUserId();
 
     //sales
     @FXML

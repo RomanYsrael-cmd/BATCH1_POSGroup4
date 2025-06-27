@@ -2,6 +2,7 @@ package Batch1_POSG4.controller;
 
 import java.io.IOException;
 
+import Batch1_POSG4.util.Session;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,6 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class UserController {
+    long currentUserId = Session.get().getCurrentUser().getUserId();
 
     @FXML
     private Button btnAdd;

@@ -1,5 +1,6 @@
 package Batch1_POSG4.controller;
 
+import Batch1_POSG4.util.Session;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -8,6 +9,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
 public class ReturnsController {
+    long currentUserId = Session.get().getCurrentUser().getUserId();
 
     @FXML
     private Button btnCancel;

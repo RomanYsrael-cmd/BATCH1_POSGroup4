@@ -9,16 +9,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import Batch1_POSG4.dao.InventoryAddDAO;
+import Batch1_POSG4.util.Session;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
@@ -47,6 +44,8 @@ public class AddInventoryController {
     
     @FXML
     private TextField txtLocation;
+    
+    long currentUserId = Session.get().getCurrentUser().getUserId();
 
     private Connection connect() {
         // Path to your SQLite DB

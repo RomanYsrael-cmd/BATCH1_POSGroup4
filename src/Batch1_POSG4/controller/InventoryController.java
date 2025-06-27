@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import Batch1_POSG4.dao.ProductDAO;
+import Batch1_POSG4.util.Session;
 import Batch1_POSG4.view.ProductView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -68,6 +69,7 @@ public class InventoryController  {
     private static final int ROWS_PER_PAGE = 10;
     private int currentPageIndex = 0;
     private ObservableList<ProductView> pageData;
+    long currentUserId = Session.get().getCurrentUser().getUserId();
 
     @FXML
     public void initialize() {
@@ -198,11 +200,10 @@ public class InventoryController  {
         filteredData = new FilteredList<>(masterData, pv -> true);
         tblInventory.setItems(filteredData);
         ObservableList<String> cats = FXCollections.observableArrayList("All Categories");
-        masterData.stream()
-                .map(ProductView::getCategory)
-                .distinct()
-                .sorted()
-                .forEach(cats::add);
+        masterData.stream().map(ProductView::getCategory)
+            .distinct()
+            .sorted()
+            .forEach(cats::add);
         cmbCategory.setItems(cats);
         cmbCategory.getSelectionModel().selectFirst();
     }
@@ -243,17 +244,13 @@ public class InventoryController  {
         Parent addInvRoot = loader.load();
         AddInventoryController addCtrl = loader.getController();
         addCtrl.loadCategories();  // still load the drop-down in the dialog
-
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(((Node) event.getSource()).getScene().getWindow());
         dialog.setScene(new Scene(addInvRoot));
         dialog.setTitle("Add Inventory");
-        dialog.showAndWait();      // <--- this blocks until the user closes
-
-        // now that the ADD screen is closed, refresh your table
+        dialog.showAndWait();   
         refreshInventoryTable();
-
     }
 
     @FXML
