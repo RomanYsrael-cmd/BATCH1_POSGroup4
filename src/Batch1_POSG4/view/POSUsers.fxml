@@ -12,7 +12,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="555.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Batch1_POSG4.controller.UserController">
    <children>
       <HBox alignment="TOP_CENTER" maxWidth="1.7976931348623157E308" prefHeight="0.0" prefWidth="590.0">
@@ -49,9 +48,9 @@
       </Label>
       <TableView fx:id="tbl_Userlist" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
         <columns>
-          <TableColumn prefWidth="75.0" text="User ID" />
-          <TableColumn prefWidth="75.0" text="User Name" />
-            <TableColumn prefWidth="75.0" text="Role" />
+          <TableColumn fx:id="colUserId" prefWidth="75.0" text="User ID" />
+          <TableColumn fx:id="colUsername" prefWidth="75.0" text="User Name" />
+            <TableColumn fx:id="colRole" prefWidth="75.0" text="Role" />
             <TableColumn prefWidth="75.0" text="Created" />
         </columns>
          <columnResizePolicy>

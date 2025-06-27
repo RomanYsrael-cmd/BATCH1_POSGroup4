@@ -31,14 +31,10 @@ import javafx.scene.Node;
 
 public class InventoryController  {
 
-    @FXML
-    private Button btnAddItem;
-    @FXML
-    private Button btnNextPage;
-    @FXML
-    private Button btnPrevPage;
-    @FXML
-    private ComboBox<String> cmbCategory;
+    @FXML private Button btnAddItem;
+    @FXML private Button btnNextPage;
+    @FXML private Button btnPrevPage;
+    @FXML private ComboBox<String> cmbCategory;
     @FXML
     private ComboBox<String> cmbFilter;
     @FXML
