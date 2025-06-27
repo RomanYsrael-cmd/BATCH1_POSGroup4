@@ -35,7 +35,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -145,6 +144,10 @@ public class SalesController {
                 newScene.addEventFilter(KeyEvent.KEY_TYPED, this::handleGlobalKeyTyped);
             }
         });
+
+        txtPayment.setDisable(true);
+        txtChange.setDisable(true);
+        txtBarcode.setDisable(true);
 
     }
 
@@ -410,7 +413,7 @@ public class SalesController {
 
     @FXML
     void handlesOpenCash(ActionEvent event) {
-
+        System.out.println("Cash Opened");
     }
 
     @FXML
@@ -562,6 +565,10 @@ public class SalesController {
             txtChange.clear();
 
             // enable scanning and payment now that we have a sale in progress
+            
+            txtPayment.setDisable(false);
+            txtChange.setDisable(false);
+            txtBarcode.setDisable(false);
             btnProceedPayment.setDisable(false);
             txtBarcode.setDisable(false);
             btnNewTxn.setDisable(true);  // one sale at a time

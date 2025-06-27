@@ -3,7 +3,6 @@ package Batch1_POSG4.controller;
 import java.io.IOException;
 
 import Batch1_POSG4.util.Session;
-import Batch1_POSG4.model.User;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

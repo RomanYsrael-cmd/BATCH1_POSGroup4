@@ -66,12 +66,6 @@ public class InventoryAddDAO {
         }
     }
 
-    /**
-     * Adjusts inventory using an existing connection (for use in batch transactions).
-     * @param conn      an open connection with autoCommit disabled
-     * @param productId the product to update
-     * @param delta     positive to add, negative to subtract
-     */
     public void adjustInventory(Connection conn, long productId, int delta) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(UPDATE_INVENTORY_SQL)) {
             ps.setInt(1, delta);

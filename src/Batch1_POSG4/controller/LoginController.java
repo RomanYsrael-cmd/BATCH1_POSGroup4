@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.sql.*;
 import Batch1_POSG4.model.User;
 import Batch1_POSG4.util.Sha256Hasher;
-import Batch1_POSG4.util.Session;          // ← import your Session singleton
+import Batch1_POSG4.util.Session;         
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -24,7 +24,7 @@ public class LoginController {
 
     @FXML
     private void handleLogin(ActionEvent event) {
-        String user = usernameField.getText().trim();
+        String user  = usernameField.getText().trim();
         String pass1 = passwordField.getText();
 
         if (user.isBlank() || pass1.isBlank()) {
@@ -32,19 +32,19 @@ public class LoginController {
             return;
         }
 
-        String pass = new Sha256Hasher(pass1).getHashedOutput();
+        String passHash = new Sha256Hasher(pass1).getHashedOutput();
         try (Connection conn = connect()) {
             String sql = "SELECT * FROM tbl_User WHERE username = ? AND password_hash = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, user);
-                stmt.setString(2, pass);
+                stmt.setString(2, passHash);
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (!rs.next()) {
                         new Alert(Alert.AlertType.ERROR, "Invalid username or password.").showAndWait();
                         return;
                     }
 
-                    // 1) Build your User model
+                    // 1) Build model and store in session
                     User loggedIn = new User(
                         rs.getLong("user_id"),
                         rs.getString("username"),
@@ -52,33 +52,35 @@ public class LoginController {
                         rs.getString("role"),
                         rs.getTimestamp("created_at").toLocalDateTime()
                     );
-
-                    // 2) Store it in the Session singleton
                     Session.get().setCurrentUser(loggedIn);
 
-                    // 3) Now load Main Menu
-                    FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/Batch1_POSG4/view/POSMainMenu.fxml")
-                    );
-                    Parent mainMenuRoot = loader.load();
+                    // 2) Decide which screen to load
+                    String role = rs.getString("role");
+                    String fxml  = "EMPLOYEE".equalsIgnoreCase(role)
+                                ? "/Batch1_POSG4/view/POSSales.fxml"
+                                : "/Batch1_POSG4/view/POSMainMenu.fxml";
+                    String title = "EMPLOYEE".equalsIgnoreCase(role)
+                                ? "Sales Screen"
+                                : "Main Menu";
 
-                    Stage stageMenu = new Stage();
-                    stageMenu.setScene(new Scene(mainMenuRoot));
-                    stageMenu.setTitle("Main Menu");
-                    stageMenu.show();
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+                    Parent root = loader.load();
 
-                    // 4) close login window
+                    Stage stage = new Stage();
+                    stage.setScene(new Scene(root));
+                    stage.setTitle(title);
+                    stage.show();
+
+                    // 3) Close login
                     Stage loginStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                     loginStage.close();
                 }
             }
         } catch (SQLException | IOException e) {
             e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Login error:\n" + e.getMessage())
-                .showAndWait();
+            new Alert(Alert.AlertType.ERROR, "Login error:\n" + e.getMessage()).showAndWait();
         }
     }
-
     @FXML private void handleExit() {
         System.exit(0);
     }
