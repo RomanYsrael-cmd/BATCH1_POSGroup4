@@ -35,7 +35,8 @@ public class ReturnsController implements Initializable {
     private SaleItemDAO saleItemDAO;
     private ReturnDAO returnDAO;
     private ObservableList<SaleItemView> saleItems;
-
+    
+    @SuppressWarnings("unused")
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Initialize DAOs

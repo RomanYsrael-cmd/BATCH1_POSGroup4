@@ -95,7 +95,6 @@ public class CustomerController {
         String phone = txtPhone.getText().trim();
 
         if (name.isEmpty()) {
-            // show alert: “Name is required”
             return;
         }
 
@@ -118,7 +117,6 @@ public class CustomerController {
 
     @FXML
     private void handlesClear(ActionEvent event) {
-        // clear the “Add New Customer” form fields:
         txtName.clear();
         txtEmail.clear();
         txtPhone.clear();

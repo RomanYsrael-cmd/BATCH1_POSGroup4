@@ -1,6 +1,5 @@
 package Batch1_POSG4.dao;
 
-import Batch1_POSG4.model.MonthlyReport;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -17,10 +16,6 @@ public class ReportDAO {
         this.dbUrl = dbUrl;
     }
 
-    /**
-     * Returns a list of all month-year strings (e.g. "June 2025")
-     * for which tbl_Sale has at least one sale_date.
-     */
     public ObservableList<String> fetchAvailablePeriods() throws SQLException {
         String sql = """
             SELECT DISTINCT strftime('%Y-%m', sale_date) AS ym
@@ -41,10 +36,6 @@ public class ReportDAO {
         }
     }
 
-    /**
-     * For a single UI‐format period like "June 2025",
-     * compute the total sales in that month.
-     */
     public double fetchTotalForPeriod(String uiPeriod) throws SQLException {
         YearMonth ym = YearMonth.parse(uiPeriod, UI_FMT);
         String ymSql = ym.format(SQL_FMT);

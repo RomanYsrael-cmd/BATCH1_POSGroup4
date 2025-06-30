@@ -1,8 +1,5 @@
 package Batch1_POSG4.model;
 
-/**
- * Simple POJO for a customer row.
- */
 public class Customer {
     private final Integer customerId;
     private final String  name;
@@ -31,7 +28,6 @@ public class Customer {
 
     @Override
     public String toString() {
-        // so that if you ever print a Customer, you see something useful:
         return name + " (" + customerId + ")";
     }
 }

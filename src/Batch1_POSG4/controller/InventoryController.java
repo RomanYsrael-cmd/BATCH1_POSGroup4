@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import Batch1_POSG4.dao.ProductDAO;
 import Batch1_POSG4.util.Session;
 import Batch1_POSG4.view.ProductView;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -32,20 +33,13 @@ import javafx.scene.Node;
 
 public class InventoryController  {
 
-    @FXML
-    private Button btnAddItem;
-    @FXML
-    private Button btnNextPage;
-    @FXML
-    private Button btnPrevPage;
-    @FXML
-    private ComboBox<String> cmbCategory;
-    @FXML
-    private ComboBox<String> cmbFilter;
-    @FXML
-    private TextField txtSearch;
-    @FXML 
-    public TableView<ProductView> tblInventory;
+    @FXML private Button btnAddItem;
+    @FXML private Button btnNextPage;
+    @FXML private Button btnPrevPage;
+    @FXML private ComboBox<String> cmbCategory;
+    @FXML private ComboBox<String> cmbFilter;
+    @FXML private TextField txtSearch;
+    @FXML public TableView<ProductView> tblInventory;
     @FXML 
     public TableColumn<ProductView, Integer> colProductCode;
     @FXML 

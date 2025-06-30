@@ -33,22 +33,15 @@ public class ReturnDAO {
         this.dbUrl = dbUrl;
     }
 
-    /**
-     * Inserts a return record.  If restock=true, also increments
-     * tbl_Inventory.quantity by the original sale quantity.
-     * Returns the generated return_id.
-     */
     public long processReturn(long saleItemId,
                               String reason,
                               double refundAmount,
                               boolean restock) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl)) {
-            // enforce FK and start transaction
             conn.createStatement().execute("PRAGMA foreign_keys = ON");
             conn.setAutoCommit(false);
 
             long returnId;
-            // 1) Insert return record
             try (PreparedStatement ps = conn.prepareStatement(
                     INSERT_RETURN_SQL, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setLong(1, saleItemId);
@@ -65,7 +58,6 @@ public class ReturnDAO {
                 }
             }
 
-            // 2) Optionally restock
             if (restock) {
                 long productId;
                 int qty;
@@ -93,7 +85,6 @@ public class ReturnDAO {
         }
     }
 
-    /** Load a single return by its primary key. */
     public ReturnModel getReturnById(long returnId) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(SELECT_BY_ID_SQL)) {
@@ -111,10 +102,6 @@ public class ReturnDAO {
         }
     }
 
-    /**
-     * List all returns associated with a given sale.
-     * Returns an ObservableList for easy JavaFX binding.
-     */
     public ObservableList<ReturnModel> listReturnsForSale(long saleId) throws SQLException {
         ObservableList<ReturnModel> results = FXCollections.observableArrayList();
         try (Connection conn = DriverManager.getConnection(dbUrl);
@@ -135,18 +122,3 @@ public class ReturnDAO {
         return results;
     }
 }
-
-//Usage for later
-
-/*
-String dbUrl = "jdbc:sqlite:db/db_pos_g4.db";
-ReturnDao dao = new ReturnDao(dbUrl);
-long retId = dao.processReturn(
-123,
-"Defective",
-49.95,
-true
-);
-Return r = dao.getReturnById(retId);
-ObservableList<Return> list = dao.listReturnsForSale(456);
- */

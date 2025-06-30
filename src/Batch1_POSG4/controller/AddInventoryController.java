@@ -1,7 +1,6 @@
 package Batch1_POSG4.controller;
 
 import java.io.IOException;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -48,7 +47,6 @@ public class AddInventoryController {
     long currentUserId = Session.get().getCurrentUser().getUserId();
 
     private Connection connect() {
-        // Path to your SQLite DB
         String url = "jdbc:sqlite:db/db_pos_g4.db";
         Connection conn = null;
         try {
@@ -132,7 +130,6 @@ public class AddInventoryController {
         dlg.close();
 
     }
-    
 
     @FXML
     private void handlesClear(ActionEvent event) {

@@ -7,12 +7,8 @@ import javafx.collections.ObservableList;
 
 import java.sql.*;
 
-/**
- * DAO for querying products + inventory + categories.
- */
 public class ProductDAO {
 
-    /** 1) Load all products (with category & stock) */
     public ObservableList<ProductView> fetchInventoryWithCategory() {
         ObservableList<ProductView> list = FXCollections.observableArrayList();
         String sql = """
@@ -49,7 +45,6 @@ public class ProductDAO {
         return list;
     }
 
-    /** 2) Load all category IDs + names for your dropdown */
     public ObservableList<Category> fetchAllCategories() {
         ObservableList<Category> list = FXCollections.observableArrayList();
         String sql = "SELECT category_id, name FROM tbl_Category ORDER BY name";
@@ -71,12 +66,6 @@ public class ProductDAO {
         return list;
     }
 
-    /**
-     * 3) Search inventory by:
-     *    - filterTerm (in name or barcode, case-insensitive)
-     *    - searchBy  ("Name" or "Barcode")
-     *    - categoryId null=all categories, otherwise that ID
-     */
     public ObservableList<ProductView> search(
             String filterTerm,
             String searchBy,
@@ -96,12 +85,10 @@ public class ProductDAO {
              WHERE 1=1
         """);
 
-        // apply category filter?
         if (categoryId != null) {
             sql.append(" AND p.category_id = ? ");
         }
 
-        // apply text filter?
         boolean hasText = filterTerm != null && !filterTerm.isBlank();
         if (hasText) {
             String col = searchBy.equalsIgnoreCase("Barcode")
@@ -142,9 +129,6 @@ public class ProductDAO {
         return list;
     }
 
-
-    // --- Optional helper class for categories ---
-    // If you don't already have one, you can define this:
     public static class Category {
         private final Integer categoryId;
         private final String  name;

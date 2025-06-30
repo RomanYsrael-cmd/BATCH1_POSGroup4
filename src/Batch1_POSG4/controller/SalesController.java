@@ -9,7 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
+import java.nio.file.Path;
 
 // 2. JavaFX import
 import javafx.animation.KeyFrame;
@@ -50,6 +52,7 @@ import Batch1_POSG4.dao.ProductDAO.Category;
 
 import Batch1_POSG4.dao.SaleDAO;
 import Batch1_POSG4.model.Customer;
+import Batch1_POSG4.util.PdfReceiptGenerator;
 import Batch1_POSG4.util.Session;
 
 
@@ -174,17 +177,15 @@ public class SalesController {
     }
     private void refreshProducts() {
         String filter   = txtSearchItem.getText().trim();
-        String searchBy = cmbSearchBy.getValue();                     // “Name” or “Barcode”
-        Category cat    = cmbCategories.getValue();                   // model has getCategoryId()
+        String searchBy = cmbSearchBy.getValue();
+        Category cat    = cmbCategories.getValue();
         Integer catId   = (cat == null ? null : cat.getCategoryId());
 
         try {
-            ObservableList<ProductView> items =
-                new ProductDAO().search(filter, searchBy, catId);
+            ObservableList<ProductView> items = new ProductDAO().search(filter, searchBy, catId);
             lstViewItems.setItems(items);
         } catch (SQLException ex) {
             ex.printStackTrace();
-            // TODO: show a user-friendly alert
         }
     }
 
@@ -213,12 +214,8 @@ public class SalesController {
 
     private void updateTotals() {
         // 1) gross = sum of all line subtotals
-        double gross = saleItems.stream()
-                                .mapToDouble(SaleItemView::getTotalPrice)
-                                .sum();
+        double gross = saleItems.stream().mapToDouble(SaleItemView::getTotalPrice).sum();
 
-        // 2) discount = any code‐based discounts + senior/PWD
-        //    (here I’ll assume a flat 20% off if checked; adjust as needed)
         double discount = 0;
         if (chkPDWSenior.isSelected()) {
             discount += gross * 0.20;
@@ -488,55 +485,54 @@ public class SalesController {
     void handlesPDWSenior(ActionEvent event) {
 
     }
-
     @FXML
-    void handlesPrintReciept(ActionEvent event) {
-        // ——— your existing console “print” code ———
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        System.out.println("\n===== SALES RECEIPT =====");
-        System.out.println("Sale ID:    " + currentSaleId);
-        System.out.println("Date/Time:  " + LocalDateTime.now().format(fmt));
-        System.out.println("Cashier:    " + Session.get().getCurrentUser().getUsername());
-        System.out.println("-------------------------------");
-        for (SaleItemView item : saleItems) {
-            System.out.printf("%-20s %2d x ₱%.2f = ₱%.2f\n",
-                item.getProductName(),
-                item.getQuantity(),
-                item.getUnitPrice(),
-                item.getTotalPrice()
+    void handlesPrintReciept(ActionEvent e) {
+        try {
+            Path out = Path.of(
+            System.getProperty("user.home"),
+            "Documents",
+            "receipt_" + currentSaleId + ".pdf"
             );
+
+
+            List<String> lines = saleItems.stream()
+                .map(it -> String.format("%-18s %2d x PHP %.2f = PHP %.2f",
+                        it.getProductName(),
+                        it.getQuantity(),
+                        it.getUnitPrice(),
+                        it.getTotalPrice()))
+                .toList();
+
+            double gross    = totalsData.get(0).getAmount();
+            double discount = -totalsData.get(1).getAmount();
+            double grand    = totalsData.get(2).getAmount();
+            double paid     = txtPayment.getText().isBlank()
+                                ? grand
+                                : Double.parseDouble(txtPayment.getText());
+            double change   = paid - grand;
+
+            PdfReceiptGenerator.write(out,
+                    currentSaleId,
+                    Session.get().getCurrentUser().getUsername(),
+                    lines, gross, discount, grand, paid, change);
+
+            java.awt.Desktop.getDesktop().open(out.toFile());
+
+            // reset UI—same as before
+            saleItems.clear(); totalsData.clear();
+            txtPayment.clear(); txtChange.clear(); txtBarcode.clear();
+            handlesNewTransaction(null);
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            showAlert("PDF Error", "Could not create receipt:\n" + ex.getMessage());
         }
-        System.out.println("-------------------------------");
-        double gross    = totalsData.get(0).getAmount();
-        double discount = -totalsData.get(1).getAmount();
-        double grand    = totalsData.get(2).getAmount();
-        double paid     = txtPayment.getText().isBlank()
-                            ? grand
-                            : Double.parseDouble(txtPayment.getText());
-        double change   = paid - grand;
-        System.out.printf("Gross Total:  ₱%.2f\n", gross);
-        System.out.printf("Discount:     ₱%.2f\n", discount);
-        System.out.printf("Grand Total:  ₱%.2f\n", grand);
-        System.out.printf("Paid:         ₱%.2f\n", paid);
-        System.out.printf("Change:       ₱%.2f\n", change);
-        System.out.println("===============================\n");
-
-        // ——— now clear & start a new sale ———
-        // 1) Reset the form
-        saleItems.clear();
-        totalsData.clear();
-        txtPayment.clear();
-        txtChange.clear();
-        txtBarcode.clear();
-
-        // 2) Kick off a brand‐new transaction
-        //    We can just re‐use your existing handler:
-        handlesNewTransaction(null);
     }
+
 
     @FXML
     void handlesSearch(ActionEvent event) {
-
+        
     }
 
     @FXML
@@ -561,7 +557,7 @@ public class SalesController {
         showAlert("Insufficient Payment", "Payment error");
         return;
         }
-        txtChange.setText(String.format("₱%.2f", paid - grandTotal));
+        txtChange.setText(String.format("PHP %.2f", paid - grandTotal));
 
         // 2) Now persist everything in one go
         try (Connection conn = DriverManager.getConnection(dbUrl)) {
@@ -607,7 +603,7 @@ public class SalesController {
             
             conn.commit();
             showAlert("Payment Complete",
-                    String.format("Transaction #%d OK. Change: ₱%.2f",
+                    String.format("Transaction #%d OK. Change: PHP %.2f",
                                     currentSaleId, paid - grandTotal));
 
             // disable further editing for this sale

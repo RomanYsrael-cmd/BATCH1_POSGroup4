@@ -1,4 +1,3 @@
-// File: Batch1_POSG4/dao/SaleItemDao.java
 package Batch1_POSG4.dao;
 
 import Batch1_POSG4.view.SaleItemView;
@@ -33,9 +32,6 @@ public class SaleItemDAO {
         this.dbUrl = dbUrl;
     }
 
-    /**
-     * Adds a line item to a sale. Returns the new sale_item_id.
-     */
     public long addItemToSale(long saleId,
                               long productId,
                               int qty,
@@ -59,9 +55,6 @@ public class SaleItemDAO {
         }
     }
 
-    /**
-     * Lists all line items for a given sale, ready for JavaFX binding.
-     */
     public ObservableList<SaleItemView> listItemsForSale(long saleId) throws SQLException {
         ObservableList<SaleItemView> list = FXCollections.observableArrayList();
         try (Connection conn = DriverManager.getConnection(dbUrl);
@@ -84,9 +77,6 @@ public class SaleItemDAO {
         return list;
     }
 
-    /**
-     * Updates the quantity (and recalculates line total) for an existing sale item.
-     */
     public void updateSaleItem(long saleItemId, int newQty) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(UPDATE_ITEM_SQL)) {
@@ -97,9 +87,6 @@ public class SaleItemDAO {
         }
     }
 
-    /**
-     * Removes a sale item from the sale.
-     */
     public void removeItemFromSale(long saleItemId) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(DELETE_ITEM_SQL)) {

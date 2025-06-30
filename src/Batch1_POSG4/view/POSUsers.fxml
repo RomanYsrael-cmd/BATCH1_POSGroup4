@@ -57,6 +57,18 @@
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
          </columnResizePolicy>
       </TableView>
+      <HBox prefHeight="21.0" prefWidth="600.0">
+         <children>
+            <Button fx:id="btnRemoveUser" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handlesRemoveUser" text="Remove Selected User" HBox.hgrow="ALWAYS">
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+               <HBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </HBox.margin>
+            </Button>
+         </children>
+      </HBox>
       <Label text="Add New">
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

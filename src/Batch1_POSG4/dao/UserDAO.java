@@ -7,9 +7,6 @@ import javafx.collections.ObservableList;
 import java.sql.*;
 import java.time.LocalDateTime;
 
-/**
- * Data access object for tbl_User. Provides methods to list, add, update, and delete users.
- */
 public class UserDAO {
     private final String dbUrl;
 
@@ -26,9 +23,6 @@ public class UserDAO {
         this.dbUrl = dbUrl;
     }
 
-    /**
-     * Retrieves all users from the database.
-     */
     public ObservableList<User> listAllUsers() throws SQLException {
         ObservableList<User> list = FXCollections.observableArrayList();
         try (Connection conn = DriverManager.getConnection(dbUrl);
@@ -47,16 +41,12 @@ public class UserDAO {
         return list;
     }
 
-    /**
-     * Adds a new user. Throws SQLException on failure.
-     */
     public void addUser(String username,
                         String passwordHash,
                         String role) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              Statement pragma = conn.createStatement();
              PreparedStatement ps = conn.prepareStatement(INSERT_SQL)) {
-            // Ensure foreign-keys (if any) are enforced
             pragma.execute("PRAGMA foreign_keys = ON");
 
             ps.setString(1, username);
@@ -68,9 +58,7 @@ public class UserDAO {
         }
     }
 
-    /**
-     * Updates username and role for the given user ID.
-     */
+
     public void updateUser(long userId,
                            String username,
                            String role) throws SQLException {
@@ -83,9 +71,7 @@ public class UserDAO {
         }
     }
 
-    /**
-     * Deletes the user with the specified ID.
-     */
+
     public void deleteUser(long userId) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(DELETE_SQL)) {

@@ -32,13 +32,10 @@ public class SaleDAO {
         this.dbUrl = dbUrl;
     }
 
-    /** 
-     * Starts a new sale. Returns the generated sale_id.
-     */
     public long createSale(long userId, Integer customerId, String paymentMethod) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(INSERT_SALE_SQL, Statement.RETURN_GENERATED_KEYS)) {
-            // ensure FKs are enforced
+            // ensure FKs
             //ps.execute("PRAGMA foreign_keys = ON");
             ps.setLong(1, userId);
             if (customerId != null) ps.setInt(2, customerId);
@@ -55,9 +52,6 @@ public class SaleDAO {
         }
     }
 
-    /**
-     * Loads a sale header by its ID, with joined customer & cashier info.
-     */
     public Sale findById(long saleId) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(SELECT_BY_ID_SQL)) {
@@ -78,9 +72,6 @@ public class SaleDAO {
         }
     }
 
-    /**
-     * Updates the sale header: customer, payment method, and running total.
-     */
     public void updateSaleHeader(long saleId,
                                  Integer customerId,
                                  String paymentMethod,
@@ -95,9 +86,6 @@ public class SaleDAO {
         }
     }
 
-    /**
-     * Cancels a sale by deleting its header (and, via FK CASCADE, its items & discounts).
-     */
     public void cancelSale(long saleId) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(DELETE_SALE_SQL)) {
