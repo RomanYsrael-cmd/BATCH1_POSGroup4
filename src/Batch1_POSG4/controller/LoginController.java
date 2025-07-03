@@ -39,11 +39,9 @@ public class LoginController {
 
     String passHash = new Sha256Hasher(pass1).getHashedOutput();
     User loggedIn;
-    // ——————————— Authenticate & close that connection ———————————
     try (Connection conn = connect();
         PreparedStatement ps = conn.prepareStatement(
             "SELECT * FROM tbl_User WHERE username=? AND password_hash=?")) {
-        // optional: enable WAL if you like
         // try (Statement prag = conn.createStatement()) {
         //   prag.execute("PRAGMA journal_mode=WAL");
         // }
@@ -69,7 +67,6 @@ public class LoginController {
         return;
     }
 
-    // ——————————— Create & store the LoginSession ———————————
     try {
         LoginSessionDAO dao = new LoginSessionDAO();
         String ip     = DeviceInfoUtil.getIpAddress();
@@ -82,7 +79,6 @@ public class LoginController {
         return;
     }
 
-    // ——————————— Load next screen (same as before) ———————————
     String role = loggedIn.getRole();
     String fxml = "EMPLOYEE".equalsIgnoreCase(role)
                     ? "/Batch1_POSG4/view/POSSales.fxml"
