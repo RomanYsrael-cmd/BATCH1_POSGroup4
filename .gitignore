@@ -15,8 +15,8 @@ lib/javafx-sdk-*/src.zip
 *.db
 
 # === Java libraries (JARs and SDKs) ===
-#*.jar#
-#lib/#
+*.jar
+lib/
 
 # === Git-related ===
 filelist.txt
