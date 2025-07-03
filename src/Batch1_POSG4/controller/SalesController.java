@@ -34,6 +34,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -53,12 +54,14 @@ import Batch1_POSG4.view.ProductView;
 import Batch1_POSG4.view.SaleItemView;
 import Batch1_POSG4.view.TotalsView;
 import Batch1_POSG4.dao.CustomerDAO;
+import Batch1_POSG4.dao.DiscountDAO;
 import Batch1_POSG4.dao.InventoryAddDAO;
 import Batch1_POSG4.dao.ProductDAO;
 import Batch1_POSG4.dao.ProductDAO.Category;
 
 import Batch1_POSG4.dao.SaleDAO;
 import Batch1_POSG4.model.Customer;
+import Batch1_POSG4.model.Discount;
 import Batch1_POSG4.util.PdfReceiptGenerator;
 import Batch1_POSG4.util.Session;
 
@@ -80,6 +83,7 @@ public class SalesController {
     @FXML private Button btnItem8;
     @FXML private Button btnItem9;
     @FXML private Button btnManageDiscount;
+    @FXML private ToggleButton btnApplyDiscount;    
     @FXML private Button btnOpenCash;
     @FXML private Button btnPrintReciept;
     @FXML private Button btnReturn;
@@ -106,6 +110,7 @@ public class SalesController {
     @FXML private TextField txtTransactionNumber;
     @FXML private TextField txtPayment;
     @FXML private TextField txtChange;
+    
     @FXML private Button btnNewTxn;
     @FXML private ComboBox<String>        cmbSearchBy;
     @FXML private ComboBox<ProductDAO.Category> cmbCategories;
@@ -113,6 +118,7 @@ public class SalesController {
     //private StringBuilder barcodeBuffer = new StringBuilder();
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     public static boolean barcodeMode;
+    public static boolean discountApplied;
     private final ObservableList<SaleItemView> saleItems = FXCollections.observableArrayList();
     private final String dbUrl = "jdbc:sqlite:db/db_pos_g4.db";
     private long currentSaleId;
@@ -121,7 +127,8 @@ public class SalesController {
     private Integer selectedCustomerId;
     private String  paymentMethod = "Cash";
     long currentUserId = Session.get().getCurrentUser().getUserId();
-
+    private String lastCode;     
+    private boolean lastDidPWD;  
     @FXML
     public void initialize() {
         Timeline clock = new Timeline(
@@ -148,7 +155,7 @@ public class SalesController {
         colAdjustment  .setCellValueFactory(new PropertyValueFactory<>("description"));
         colTotalAmount .setCellValueFactory(new PropertyValueFactory<>("amount"));
         tblTotals.setItems(totalsData);
-        chkPDWSenior.selectedProperty().addListener((obs,oldV,newV)-> updateTotals());
+        //chkPDWSenior.selectedProperty().addListener((obs,oldV,newV)-> updateTotals());
 
         // handle ENTER on the barcode field
         txtBarcode.setOnAction(evt -> onBarcodeEntered());
@@ -221,7 +228,63 @@ public class SalesController {
         
         TextFormatter<String> formatter = new TextFormatter<>(filter);
         txtPayment.setTextFormatter(formatter);
+        btnApplyDiscount.setOnAction(evt -> {
+            if (btnApplyDiscount.isSelected()) {
+                applyDiscountCode();
+            } else {
+                // remove any rows we added
+                totalsData.removeIf(tv ->
+                tv.getDescription().equals("PDW/Senior 20%") ||
+                (lastCode != null && tv.getDescription().equals("Discount ("+lastCode+")"))
+                );
+                // clear our trackers
+                lastCode    = null;
+                lastDidPWD  = false;
 
+                recalcGrandTotalRow();
+            }
+        });
+        tblSales.setRowFactory(tv -> {
+            TableRow<SaleItemView> row = new TableRow<>();
+            row.setOnMouseClicked(evt -> {
+                if (evt.getClickCount() == 2 && ! row.isEmpty()) {
+                    SaleItemView item = row.getItem();
+                    
+                    // bring up a small dialog to let user enter a new qty (0 to remove)
+                    TextInputDialog dlg = new TextInputDialog(
+                        Integer.toString(item.getQuantity())
+                    );
+                    dlg.setTitle("Edit Quantity");
+                    dlg.setHeaderText("Adjust quantity for “" + item.getProductName() + "”");
+                    dlg.setContentText("Enter a value (0 to remove):");
+                    
+                    Optional<String> result = dlg.showAndWait();
+                    if (result.isPresent()) {
+                        try {
+                            int newQty = Integer.parseInt(result.get().trim());
+                            if (newQty < 0) {
+                                showAlert("Invalid Quantity", "Please enter 0 or a positive integer.");
+                            }
+                            else if (newQty == 0) {
+                                // remove the line entirely
+                                saleItems.remove(item);
+                            }
+                            else {
+                                // update the line
+                                item.quantityProperty().set(newQty);
+                            }
+                            // recalc totals & refresh
+                            updateTotals();
+                            tblSales.refresh();
+                        } catch (NumberFormatException ex) {
+                            showAlert("Invalid Input", "Please enter a whole number.");
+                        }
+                    }
+                }
+            });
+            return row;
+        });
+        btnPrintReciept.setDisable(true);
     }
     private void refreshProducts() {
         String filter   = txtSearchItem.getText().trim();
@@ -259,29 +322,20 @@ public class SalesController {
         }
     }
 
-
     private void updateTotals() {
         // 1) gross = sum of all line subtotals
-        double gross = saleItems.stream().mapToDouble(SaleItemView::getTotalPrice).sum();
+        double gross = saleItems.stream()
+                                .mapToDouble(SaleItemView::getTotalPrice)
+                                .sum();
+        // 2) since no other discounts yet, grand == gross
+        double grand = gross;
 
-        double discount = 0;
-        if (chkPDWSenior.isSelected()) {
-            discount += gross * 0.20;
-        }
-        // + you can add other discounts here, e.g.
-        // discount += someDiscountDao.getDiscountAmount(currentSaleId);
-
-        // 3) grand total = gross – discount
-        double grand = gross - discount;
-
-        // 4) populate the 3 rows
+        // 3) populate the 2 rows
         totalsData.setAll(
-        new TotalsView("Gross Total", gross),
-        new TotalsView("Discount",    -discount),   // negative so it subtracts
-        new TotalsView("Grand Total",  grand)
+            new TotalsView("Gross Total", gross),
+            new TotalsView("Grand Total", grand)
         );
     }
-
     @FXML
     private void onBarcodeEntered() {
         String code = txtBarcode.getText().trim();
@@ -382,17 +436,21 @@ public class SalesController {
 
     @FXML
     void handlesDiscount(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(
-            "/Batch1_POSG4/view/POSDiscount.fxml"
-        ));
-        Parent addInvRoot = loader.load();
-        
+        FXMLLoader loader = new FXMLLoader(
+            getClass().getResource("/Batch1_POSG4/view/POSDiscount.fxml")
+        );
+        Parent root = loader.load();
+
+        DiscountController dc = loader.getController();
+        dc.setSaleId(currentSaleId);   
+
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(((Node) event.getSource()).getScene().getWindow());
-        dialog.setScene(new Scene(addInvRoot));
+        dialog.setScene(new Scene(root));
         dialog.setTitle("Discount Manager");
         dialog.showAndWait();
+
         updateTotals();
     }
     
@@ -535,6 +593,10 @@ public class SalesController {
     }
     @FXML
     void handlesPrintReciept(ActionEvent e) {
+        if (btnPrintReciept.isDisabled()) {
+            return;
+        }
+
         try {
             Path out = Path.of(
             System.getProperty("user.home"),
@@ -551,9 +613,11 @@ public class SalesController {
                         it.getTotalPrice()))
                 .toList();
 
-            double gross    = totalsData.get(0).getAmount();
-            double discount = -totalsData.get(1).getAmount();
-            double grand    = totalsData.get(2).getAmount();
+            double gross       = findGrossTotal();
+            double grand       = findGrandTotal();
+            // overall “discount” is whatever was subtracted:
+            // gross – grand will be a positive value if any adjustments exist
+            double discount    = gross - grand;
             double paid     = txtPayment.getText().isBlank()
                                 ? grand
                                 : Double.parseDouble(txtPayment.getText());
@@ -570,7 +634,7 @@ public class SalesController {
             saleItems.clear(); totalsData.clear();
             txtPayment.clear(); txtChange.clear(); txtBarcode.clear();
             handlesNewTransaction(null);
-
+            btnPrintReciept.setDisable(true);
         } catch (IOException ex) {
             ex.printStackTrace();
             showAlert("PDF Error", "Could not create receipt:\n" + ex.getMessage());
@@ -585,16 +649,37 @@ public class SalesController {
 
     @FXML
     void handlesVoid(ActionEvent event) {
+        // 1) Clear out any existing line-items & UI
         saleItems.clear();
         totalsData.clear();
         txtPayment.clear();
         txtChange.clear();
+        btnApplyDiscount.setDisable(false);
+        chkPDWSenior.setDisable(false);   // if you’d also like to re-enable the PWD toggle
+
+        // 2) Start a fresh sale
+        try {
+            SaleDAO saleDao = new SaleDAO(dbUrl);
+            currentSaleId = saleDao.createSale(currentUserId, null, paymentMethod);
+            txtTransactionNumber.setText(Long.toString(currentSaleId));
+
+            // 3) Seed the totals grid so recalc never blows up
+            updateTotals();
+
+            // 4) Re-enable your controls
+            enableControls();
+            btnNewTxn.setDisable(true);  // same behavior as handlesNewTransaction
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            showAlert("DB Error", "Failed to start new transaction:\n" + ex.getMessage());
+        }
     }
 
     @FXML
     void handlesProceedPayment(ActionEvent event) {
+
         // 1) validate payment & compute change (as you already do) …
-        if (totalsData.size() < 3) {
+        if (saleItems.size() < 1) {
             showAlert("Nothing to pay", "Please scan items first.");
             return;
         }
@@ -604,11 +689,11 @@ public class SalesController {
             return;
         }
 
-        double paid      = Double.parseDouble(txtPayment.getText().trim());
-        double grandTotal= totalsData.get(2).getAmount();
+        double paid       = Double.parseDouble(txtPayment.getText().trim());
+        double grandTotal = findGrandTotal();
         if (paid < grandTotal) {
-        showAlert("Insufficient Payment", "Payment error");
-        return;
+            showAlert("Insufficient Payment", "Payment error");
+            return;
         }
         txtChange.setText(String.format("PHP %.2f", paid - grandTotal));
 
@@ -641,6 +726,7 @@ public class SalesController {
                     payment_method = ?
             WHERE sale_id = ?
             """;
+
             try (PreparedStatement ps2 = conn.prepareStatement(updSQL)) {
                 ps2.setDouble(1, grandTotal);
                 ps2.setString(2, paymentMethod);
@@ -681,10 +767,10 @@ public class SalesController {
             showAlert("Payment Complete",
                     String.format("Transaction #%d OK. Change: PHP %.2f",
                                     currentSaleId, paid - grandTotal));
-
+            disableControls();
             btnProceedPayment.setDisable(true);
             txtBarcode      .setDisable(true);
-
+            btnPrintReciept.setDisable(false);
         } catch (SQLException ex) {
             ex.printStackTrace();
             showAlert("Database Error", ex.getMessage());
@@ -700,12 +786,13 @@ public class SalesController {
             txtTransactionNumber.setText(Long.toString(currentSaleId));
 
             saleItems.clear();
-            totalsData.clear();
+            updateTotals();
+
             txtPayment.clear();
             txtChange.clear();
-            
-            enableControls();
 
+            enableControls();
+            btnNewTxn.setDisable(true);
         } catch (SQLException ex) {
             ex.printStackTrace();
             showAlert("DB Error", "Failed to start new transaction:\n" + ex.getMessage());
@@ -726,8 +813,9 @@ public class SalesController {
         txtPayment.setDisable(false);
         txtBarcode.setDisable(false);
         txtDiscount.setDisable(false);
-        txtSearchItem.setDisable(false);;
+        txtSearchItem.setDisable(false);
         btnProceedPayment.setDisable(false);
+        btnApplyDiscount.setDisable(false);
     }
 
     @FXML
@@ -746,5 +834,113 @@ public class SalesController {
         txtDiscount.setDisable(true);
         txtSearchItem.setDisable(true);
         btnProceedPayment.setDisable(true);
+        btnApplyDiscount.setDisable(true);
+    }
+
+    @FXML
+    void handlesApplyDiscount(ActionEvent event) {
+    }
+
+    private void applyDiscountCode(){
+        String code = txtDiscount.getText().trim();
+
+        if (code.isEmpty()) {
+            showAlert("Missing Code", "Please enter a discount code.");
+            return;
+        }
+
+        try {
+            DiscountDAO dao = new DiscountDAO(dbUrl);
+            Optional<Discount> opt = dao.findByCode(code);
+            if (opt.isEmpty()) {
+                showAlert("Invalid Discount", "No such discount code.");
+                return;
+            }
+            Discount d = opt.get();
+
+            double discValue;
+            Long pid = d.getProductId();
+            if (pid != null) {
+                // item‐specific discount
+                var lineOpt = saleItems.stream()
+                    .filter(si -> si.getProductId() == pid)
+                    .findFirst();
+                if (lineOpt.isEmpty()) {
+                    showAlert("Not Applicable",
+                        "Discount “" + code + "” only applies to “"
+                        + d.getProductName() + "”.");
+                    return;
+                }
+                SaleItemView line = lineOpt.get();
+                double unit = line.getUnitPrice();               // price of one unit
+                if (d.getDiscountType().equalsIgnoreCase("Percentage")) {
+                    discValue = unit * d.getAmount() / 100.0;
+                } else {
+                    discValue = Math.min(d.getAmount(), unit);
+                }
+            } else {
+                // general discount
+                double gross = saleItems.stream()
+                                    .mapToDouble(SaleItemView::getTotalPrice)
+                                    .sum();
+                if ("Percentage".equalsIgnoreCase(d.getDiscountType())) {
+                    discValue = gross * d.getAmount() / 100.0;
+                } else {
+                    discValue = d.getAmount();
+                }
+            }
+            totalsData.add(new TotalsView("Discount ("+code+")", -discValue));
+            lastCode    = code;
+
+            // 2) optionally add PWD/Senior 20%
+            if (chkPDWSenior.isSelected()) {
+                double gross = saleItems.stream().mapToDouble(SaleItemView::getTotalPrice).sum();
+                double pwdValue = gross * 0.20;
+                totalsData.add(new TotalsView("PDW/Senior 20%", -pwdValue));
+                lastDidPWD = true;
+            } else {
+                lastDidPWD = false;
+            }
+
+            // 3) recompute
+            recalcGrandTotalRow();
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            showAlert("Database Error", ex.getMessage());
+        }
+
+    }
+    private void recalcGrandTotalRow() {
+        // 1) gross is the very first row
+        double gross = totalsData.get(0).getAmount();
+        // 2) sum everything except that first and any existing "Grand Total"
+        double adjustments = totalsData.stream()
+            .filter(tv -> !tv.getDescription().equals("Gross Total")
+                    && !tv.getDescription().equals("Grand Total"))
+            .mapToDouble(TotalsView::getAmount)
+            .sum();
+        double grand = gross + adjustments;
+
+        // 3) drop old Grand Total row
+        totalsData.removeIf(tv -> tv.getDescription().equals("Grand Total"));
+        // 4) append new Grand Total
+        totalsData.add(new TotalsView("Grand Total", grand));
+    }
+
+    private double findGrossTotal() {
+        return totalsData.stream()
+            .filter(tv -> tv.getDescription().equals("Gross Total"))
+            .findFirst()
+            .map(TotalsView::getAmount)
+            .orElse(0.0);
+    }
+
+    private double findGrandTotal() {
+        return totalsData.stream()
+            .filter(tv -> tv.getDescription().equals("Grand Total"))
+            .findFirst()
+            .map(TotalsView::getAmount)
+            .orElse(0.0);
     }
 }

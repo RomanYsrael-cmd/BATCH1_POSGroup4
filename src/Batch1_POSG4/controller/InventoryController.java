@@ -26,6 +26,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
@@ -39,6 +40,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.Node;
+import javafx.scene.input.KeyCode;
 
 public class InventoryController  {
 
@@ -112,6 +114,30 @@ public class InventoryController  {
         txtSearch.textProperty().addListener((obs,o,n) -> applySearchFilter());
         cmbFilter.setOnAction(e -> applySearchFilter());
     
+        tblInventory.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.DELETE) {
+                ProductView selected = tblInventory.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    Alert confirm = new Alert(AlertType.CONFIRMATION,
+                        "Are you sure you want to delete \"" + selected.getProductName() + "\"?",
+                        ButtonType.YES, ButtonType.NO);
+                    confirm.setHeaderText(null);
+                    confirm.showAndWait().ifPresent(btn -> {
+                        if (btn == ButtonType.YES) {
+                            try {
+                                // use your DAO to delete
+                                new InventoryAddDAO("jdbc:sqlite:db/db_pos_g4.db")
+                                    .deleteInventory(selected.getProductCode());
+                                refreshInventoryTable();
+                            } catch (SQLException ex) {
+                                new Alert(AlertType.ERROR, "DB error: " + ex.getMessage())
+                                    .showAndWait();
+                            }
+                        }
+                    });
+                }
+            }
+        });
 
     }
     private void showInventoryDialog(ProductView item) {

@@ -20,6 +20,8 @@ public class InventoryAddDAO {
     private static final String SET_INVENTORY_SQL =
         "UPDATE tbl_Inventory SET quantity = ? WHERE product_id = ?";
 
+    private static final String DELETE_INVENTORY_SQL =
+        "DELETE FROM tbl_Inventory WHERE product_id = ?";
     private final String dbUrl;
 
     public InventoryAddDAO(String dbUrl) {
@@ -46,7 +48,18 @@ public class InventoryAddDAO {
             return productId;
         }
     }
-    
+    // Delete an inventory record for a product
+    public void deleteInventory(long productId) throws SQLException {
+        try (Connection conn = DriverManager.getConnection(dbUrl)) {
+            conn.createStatement().execute("PRAGMA foreign_keys = ON");
+            try (PreparedStatement ps = conn.prepareStatement(DELETE_INVENTORY_SQL)) {
+                ps.setLong(1, productId);
+                if (ps.executeUpdate() == 0) {
+                    throw new SQLException("No inventory record found for product_id=" + productId);
+                }
+            }
+        }
+    }
     public void adjustInventory(long productId, int delta) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl)) {
             conn.createStatement().execute("PRAGMA foreign_keys = ON");

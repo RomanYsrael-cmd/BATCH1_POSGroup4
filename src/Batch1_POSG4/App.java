@@ -15,7 +15,6 @@ public class App extends Application {
     @Override
     public void init() throws Exception {
         super.init();
-        // JVM-level hook: even if someone calls System.exit(0), this runs
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             closeCurrentSession();
         }));

@@ -1,11 +1,9 @@
 package Batch1_POSG4.controller;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
-import Batch1_POSG4.dao.LoginSessionDAO;
 import Batch1_POSG4.util.Session;
-import javafx.application.Platform;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,47 +11,11 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.Node;
 
 public class MainMenuController {
-    @FXML private AnchorPane rootPane;
 
     long me = Session.get().getCurrentUser().getUserId();
-    private void logoutAndShowLogin(Stage currentStage) {
-        long sid = Session.get().getSessionId();
-        try {
-            new LoginSessionDAO().closeSession(sid);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-
-        try {
-            Parent login = FXMLLoader.load(
-                getClass().getResource("/Batch1_POSG4/view/POSLogin.fxml")
-            );
-            Stage loginStage = new Stage();
-            loginStage.setTitle("Log In");
-            loginStage.setScene(new Scene(login));
-            loginStage.show();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-
-        currentStage.close();
-    }
-    @FXML
-    public void initialize() {
-        // runLater to ensure scene & window have been set
-        Platform.runLater(() -> {
-            Stage stage = (Stage) rootPane.getScene().getWindow();
-            stage.setOnCloseRequest(evt -> {
-                evt.consume();   // prevent default hide()
-                logoutAndShowLogin(stage);
-            });
-        });
-    }
-
 
     //sales
     @FXML
@@ -171,9 +133,16 @@ public class MainMenuController {
     }
     //exit
     @FXML
-    private void handleLogoutExit(ActionEvent event) {
+    private void handleLogoutExit(ActionEvent event) throws IOException{
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSLogin.fxml"));
+        Parent mainLogin = loader.load();
+        
+        Stage stageLogin = new Stage();
+        stageLogin.setTitle("Log In");
+        stageLogin.setScene(new Scene(mainLogin));
+        stageLogin.show();
+        
         Stage menuStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        logoutAndShowLogin(menuStage);
+        menuStage.close();
     }
-
 }
