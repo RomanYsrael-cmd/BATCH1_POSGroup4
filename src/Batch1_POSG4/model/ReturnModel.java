@@ -2,18 +2,24 @@ package Batch1_POSG4.model;
 
 import java.sql.Timestamp;
 
+// Represents a return record for a sale item, including reason and refund amount.
 public class ReturnModel {
+
+    // Instance fields (public)
+
+    // Instance fields (private)
     private final long returnId;
     private final long saleItemId;
     private final Timestamp returnDate;
     private final String reason;
     private final double refundAmount;
 
+    // Constructs a ReturnModel with all fields specified.
     public ReturnModel(long returnId,
-                  long saleItemId,
-                  Timestamp returnDate,
-                  String reason,
-                  double refundAmount) {
+                       long saleItemId,
+                       Timestamp returnDate,
+                       String reason,
+                       double refundAmount) {
         this.returnId     = returnId;
         this.saleItemId   = saleItemId;
         this.returnDate   = returnDate;
@@ -21,9 +27,18 @@ public class ReturnModel {
         this.refundAmount = refundAmount;
     }
 
-    public long getReturnId()     { return returnId; }
-    public long getSaleItemId()   { return saleItemId; }
+    // Returns the return ID.
+    public long getReturnId()        { return returnId; }
+
+    // Returns the sale item ID associated with this return.
+    public long getSaleItemId()      { return saleItemId; }
+
+    // Returns the timestamp of the return.
     public Timestamp getReturnDate() { return returnDate; }
-    public String getReason()     { return reason; }
-    public double getRefundAmount() { return refundAmount; }
+
+    // Returns the reason for the return.
+    public String getReason()        { return reason; }
+
+    // Returns the refund amount for the return.
+    public double getRefundAmount()  { return refundAmount; }
 }

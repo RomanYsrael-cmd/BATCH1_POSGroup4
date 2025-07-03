@@ -1,4 +1,3 @@
-// src/main/java/Batch1_POSG4/dao/LoginSessionDAO.java
 package Batch1_POSG4.dao;
 
 import java.sql.*;

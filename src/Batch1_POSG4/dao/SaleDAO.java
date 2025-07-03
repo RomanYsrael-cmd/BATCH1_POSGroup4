@@ -1,13 +1,24 @@
-// File: Batch1_POSG4/dao/SaleDao.java
 package Batch1_POSG4.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 
 import Batch1_POSG4.model.Sale;
 
-import java.sql.*;
-
+// Provides database operations for sales, including creation, lookup, update, and cancellation.
 public class SaleDAO {
+
+    // Instance fields (public)
+
+    // Instance fields (private)
     private final String dbUrl;
 
+    // Private constants
     private static final String INSERT_SALE_SQL =
         "INSERT INTO tbl_Sale(user_id, customer_id, sale_date, total_amount, payment_method) " +
         "VALUES (?, ?, CURRENT_TIMESTAMP, 0.0, ?)";
@@ -28,18 +39,18 @@ public class SaleDAO {
     private static final String DELETE_SALE_SQL =
         "DELETE FROM tbl_Sale WHERE sale_id = ?";
 
+    // Constructs a SaleDAO with the specified database URL.
     public SaleDAO(String dbUrl) {
         this.dbUrl = dbUrl;
     }
 
+    // Creates a new sale record and returns its generated ID.
     public long createSale(long userId, Integer customerId, String paymentMethod) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(INSERT_SALE_SQL, Statement.RETURN_GENERATED_KEYS)) {
-            // ensure FKs
-            //ps.execute("PRAGMA foreign_keys = ON");
             ps.setLong(1, userId);
             if (customerId != null) ps.setInt(2, customerId);
-            else                 ps.setNull(2, Types.INTEGER);
+            else                    ps.setNull(2, Types.INTEGER);
             ps.setString(3, paymentMethod);
 
             if (ps.executeUpdate() == 0) {
@@ -52,6 +63,7 @@ public class SaleDAO {
         }
     }
 
+    // Finds a sale by its ID and returns a Sale object, or null if not found.
     public Sale findById(long saleId) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(SELECT_BY_ID_SQL)) {
@@ -72,6 +84,7 @@ public class SaleDAO {
         }
     }
 
+    // Updates the sale header with new customer, payment method, and total amount.
     public void updateSaleHeader(long saleId,
                                  Integer customerId,
                                  String paymentMethod,
@@ -86,6 +99,7 @@ public class SaleDAO {
         }
     }
 
+    // Cancels (deletes) a sale by its ID.
     public void cancelSale(long saleId) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(DELETE_SALE_SQL)) {

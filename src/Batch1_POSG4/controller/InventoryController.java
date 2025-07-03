@@ -1,5 +1,6 @@
 package Batch1_POSG4.controller;
 
+// Standard library imports
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,20 +8,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import Batch1_POSG4.dao.InventoryAddDAO;
-import Batch1_POSG4.dao.ProductDAO;
-import Batch1_POSG4.util.Session;
-import Batch1_POSG4.view.ProductView;
+// Third-party packages
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Label;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -28,22 +26,41 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.Node;
-import javafx.scene.input.KeyCode;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+// Project-specific imports
+import Batch1_POSG4.dao.InventoryAddDAO;
+import Batch1_POSG4.dao.ProductDAO;
+import Batch1_POSG4.util.Session;
+import Batch1_POSG4.view.ProductView;
+
+// Manages inventory operations, including viewing, searching, filtering, and updating product inventory.
 public class InventoryController  {
 
+    // Public constants
+
+    // Private constants
+    private static final int ROWS_PER_PAGE = 10;
+
+    // Public static fields
+
+    // Private static fields
+
+    // Public instance fields
+
+    // Private instance fields
     @FXML private Button btnAddItem;
     @FXML private Button btnNextPage;
     @FXML private Button btnPrevPage;
@@ -61,14 +78,13 @@ public class InventoryController  {
     @FXML private ObservableList<ProductView> masterData;
     @FXML private Label lblPageNumber; 
 
-    private static final int ROWS_PER_PAGE = 10;
     private int currentPageIndex = 0;
     private ObservableList<ProductView> pageData;
     long currentUserId = Session.get().getCurrentUser().getUserId();
 
+    // Initializes the inventory controller, sets up table columns, loads data, and configures event handlers.
     @FXML
     public void initialize() {
-        // 1) set up columns
         colProductCode.setCellValueFactory(new PropertyValueFactory<>("productCode"));
         colProductName.setCellValueFactory(new PropertyValueFactory<>("productName"));
         colCategory.setCellValueFactory(new PropertyValueFactory<>("category"));
@@ -76,13 +92,11 @@ public class InventoryController  {
         colPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
         colBarcode.setCellValueFactory(new PropertyValueFactory<>("barcode"));
 
-        // 2) load & wrap data
         masterData   = new ProductDAO().fetchInventoryWithCategory();
         filteredData = new FilteredList<>(masterData, pv -> true);
         tblInventory.setItems(filteredData);
-        // 3) build the “Category” combo with ALL + distinct values
+
         ObservableList<String> cats = FXCollections.observableArrayList();
-        
         cats.add("All Categories");
         masterData.stream()
                 .map(ProductView::getCategory)
@@ -91,12 +105,12 @@ public class InventoryController  {
                 .forEach(cats::add);
 
         cmbCategory.setItems(cats);
-        cmbCategory.getSelectionModel().selectFirst(); //all categories yung default 
+        cmbCategory.getSelectionModel().selectFirst();
         cmbCategory.setOnAction(e -> filterByCategory());
 
-        // 4) SEARCH BY
         cmbFilter.getItems().addAll("Barcode", "Product Code", "Product Name");
         cmbFilter.getSelectionModel().selectFirst();
+
         tblInventory.setRowFactory(tv -> {
             TableRow<ProductView> row = new TableRow<>();
             row.setOnMouseClicked(evt -> {
@@ -110,10 +124,9 @@ public class InventoryController  {
             return row;
         });
 
-        // SEARCH
         txtSearch.textProperty().addListener((obs,o,n) -> applySearchFilter());
         cmbFilter.setOnAction(e -> applySearchFilter());
-    
+
         tblInventory.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.DELETE) {
                 ProductView selected = tblInventory.getSelectionModel().getSelectedItem();
@@ -125,7 +138,6 @@ public class InventoryController  {
                     confirm.showAndWait().ifPresent(btn -> {
                         if (btn == ButtonType.YES) {
                             try {
-                                // use your DAO to delete
                                 new InventoryAddDAO("jdbc:sqlite:db/db_pos_g4.db")
                                     .deleteInventory(selected.getProductCode());
                                 refreshInventoryTable();
@@ -138,16 +150,15 @@ public class InventoryController  {
                 }
             }
         });
-
     }
+
+    // Shows a dialog for updating or adding inventory for the selected product.
     private void showInventoryDialog(ProductView item) {
-        // create controls
         TextField qtyField = new TextField();
         qtyField.setPromptText("Enter quantity");
         Button btnSet = new Button("Set Inventory");
         Button btnAdd = new Button("Add Inventory");
 
-        // layout
         HBox buttons = new HBox(10, btnSet, btnAdd);
         buttons.setAlignment(Pos.CENTER);
         VBox root = new VBox(10,
@@ -158,18 +169,15 @@ public class InventoryController  {
         );
         root.setPadding(new Insets(15));
 
-        // dialog stage
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Update Inventory");
         dialog.setScene(new Scene(root));
         dialog.initOwner(tblInventory.getScene().getWindow());
 
-        // DAO (use your same DB URL)
         String dbUrl = "jdbc:sqlite:db/db_pos_g4.db";
         InventoryAddDAO dao = new InventoryAddDAO(dbUrl);
 
-        // common handler
         EventHandler<ActionEvent> handler = e -> {
             String txt = qtyField.getText().trim();
             int q;
@@ -186,7 +194,7 @@ public class InventoryController  {
                     dao.adjustInventory(item.getProductCode(), q);
                 }
                 dialog.close();
-                refreshInventoryTable();  // reload data so the table updates
+                refreshInventoryTable();
             } catch (SQLException ex) {
                 new Alert(AlertType.ERROR, "DB error: " + ex.getMessage()).showAndWait();
             }
@@ -197,24 +205,20 @@ public class InventoryController  {
         dialog.showAndWait();
     }
 
+    // Applies the search and filter criteria to the inventory table.
     private void applySearchFilter() {
         String searchText = txtSearch.getText().toLowerCase().trim();
         String searchBy = cmbFilter.getSelectionModel().getSelectedItem();
         String selectedCategory = cmbCategory.getSelectionModel().getSelectedItem();
 
         filteredData.setPredicate(pv -> {
-            // 1) Category filter: if not “All Categories” and doesn’t match, exclude
             if (!"All Categories".equals(selectedCategory) 
                 && !pv.getCategory().equals(selectedCategory)) {
                 return false;
             }
-
-            // 2) Text search: if empty, include all remaining
             if (searchText.isEmpty()) {
                 return true;
             }
-
-            // 3) Otherwise, test the chosen field
             switch (searchBy) {
                 case "Barcode":
                     return pv.getBarcode().toLowerCase().contains(searchText);
@@ -228,19 +232,18 @@ public class InventoryController  {
         });
     }
 
+    // Filters the inventory table by the selected category.
     private void filterByCategory() {
         String selected = cmbCategory.getSelectionModel().getSelectedItem();
         filteredData.setPredicate(pv -> {
-            // “All” shows everything
             if ("All Categories".equals(selected)) {
                 return true;
             }
-            // otherwise only rows whose category equals the selection
             return pv.getCategory().equals(selected);
         });
     }
 
-
+    // Establishes a connection to the SQLite database.
     private Connection connect() {
         String url = "jdbc:sqlite:db/db_pos_g4.db";
         Connection conn = null;
@@ -252,6 +255,7 @@ public class InventoryController  {
         return conn;
     }
 
+    // Loads all categories from the database and populates the category combo box.
     public void loadCategories() {
         ObservableList<String> list = FXCollections.observableArrayList();
         String sql = "SELECT name FROM tbl_Category";
@@ -267,9 +271,10 @@ public class InventoryController  {
         }
     }
 
+    // Handles closing the inventory screen and returning to the main menu.
     public void handleClose(Stage inventoryStage, MainMenuController caller) {
         try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSMainMenu.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSMainMenu.fxml"));
             Parent mainMenu = loader.load();
             Stage mainMenuStage = new Stage();
             mainMenuStage.setScene(new Scene(mainMenu));
@@ -281,6 +286,7 @@ public class InventoryController  {
         }
     }
 
+    // Refreshes the inventory table and reloads categories.
     @FXML
     private void refreshInventoryTable() {
         masterData = new ProductDAO().fetchInventoryWithCategory();
@@ -295,14 +301,13 @@ public class InventoryController  {
         cmbCategory.getSelectionModel().selectFirst();
     }
 
-    //This line of code is unused
+    // Updates the page view for paginated inventory display.
     private void updatePage() {
         int total = filteredData.size();
         int pages = (int)Math.ceil((double)total/ROWS_PER_PAGE);
         int from  = currentPageIndex * ROWS_PER_PAGE;
         int to    = Math.min(from + ROWS_PER_PAGE, total);
 
-        // refill the page buffer from the newly-filtered list
         pageData.setAll(filteredData.subList(from, to));
 
         lblPageNumber.setText("Page " + (currentPageIndex+1) + " of " + pages);
@@ -310,27 +315,28 @@ public class InventoryController  {
         btnNextPage.setDisable(currentPageIndex >= pages-1);
     }
 
+    // Handles search key events (currently not implemented).
     @FXML
     private void handleSearch(KeyEvent event) {
-
     }
 
+    // Handles category filter action (currently not implemented).
     @FXML
     private void handleCategoryFilter(ActionEvent event) {
-        // filter by category
     }
 
+    // Handles other filter action (currently not implemented).
     @FXML
     private void handleOtherFilter(ActionEvent event) {
-        // filter by other options
     }
 
+    // Opens the add inventory dialog and refreshes the table after closing.
     @FXML
     private void handleAddItem(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSAddInventory.fxml"));
         Parent addInvRoot = loader.load();
         AddInventoryController addCtrl = loader.getController();
-        addCtrl.loadCategories();  // still load the drop-down in the dialog
+        addCtrl.loadCategories();
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(((Node) event.getSource()).getScene().getWindow());
@@ -340,16 +346,16 @@ public class InventoryController  {
         refreshInventoryTable();
     }
 
+    // Loads the previous page of inventory items.
     @FXML
     private void handlePrevPage(ActionEvent event) {
-        // load previous page
         if (currentPageIndex > 0) {
-        currentPageIndex--;
-        updatePage();
+            currentPageIndex--;
+            updatePage();
+        }
     }
 
-    }
-
+    // Loads the next page of inventory items.
     @FXML
     private void handleNextPage(ActionEvent event) {
         int totalPages = (int) Math.ceil((double) masterData.size() / ROWS_PER_PAGE);
@@ -359,9 +365,8 @@ public class InventoryController  {
         }
     }
     
+    // Handles search action (currently not implemented).
     @FXML
     void handlesSearch(ActionEvent event) {
-
     }
-    
 }

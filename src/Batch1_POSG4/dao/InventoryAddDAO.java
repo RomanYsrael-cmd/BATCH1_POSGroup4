@@ -1,12 +1,16 @@
-// File: Batch1_POSG4/dao/InventoryAddDAO.java
 package Batch1_POSG4.dao;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
-/**
- * DAO for inserting new products and managing inventory levels.
- */
+// Handles inserting new products and managing inventory levels in the database.
 public class InventoryAddDAO {
+
+    // Private constants
     private static final String INSERT_PRODUCT_SQL =
         "INSERT INTO tbl_Product(name, description, price, stock_quantity, category_id, barcode) " +
         "VALUES (?, ?, ?, ?, ?, ?)";
@@ -22,12 +26,16 @@ public class InventoryAddDAO {
 
     private static final String DELETE_INVENTORY_SQL =
         "DELETE FROM tbl_Inventory WHERE product_id = ?";
+
+    // Instance fields (private)
     private final String dbUrl;
 
+    // Constructs the DAO with the given database URL.
     public InventoryAddDAO(String dbUrl) {
         this.dbUrl = dbUrl;
     }
-    
+
+    // Registers a new product and its initial inventory, returning the new product's ID.
     public long registerNewProduct(
             String name,
             String description,
@@ -48,7 +56,8 @@ public class InventoryAddDAO {
             return productId;
         }
     }
-    // Delete an inventory record for a product
+
+    // Deletes an inventory record for a product by product ID.
     public void deleteInventory(long productId) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl)) {
             conn.createStatement().execute("PRAGMA foreign_keys = ON");
@@ -60,6 +69,8 @@ public class InventoryAddDAO {
             }
         }
     }
+
+    // Adjusts inventory by adding delta to the quantity for the given product ID.
     public void adjustInventory(long productId, int delta) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl)) {
             conn.createStatement().execute("PRAGMA foreign_keys = ON");
@@ -73,6 +84,7 @@ public class InventoryAddDAO {
         }
     }
 
+    // Adjusts inventory using an existing connection, for transactional updates.
     public void adjustInventory(Connection conn, long productId, int delta) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(UPDATE_INVENTORY_SQL)) {
             ps.setInt(1, delta);
@@ -83,7 +95,7 @@ public class InventoryAddDAO {
         }
     }
 
-    //Insert Product
+    // Inserts a new product into the database and returns its generated ID.
     private long insertProduct(Connection conn, String name, String description, double price, int quantity, int categoryId, String barcode) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
                 INSERT_PRODUCT_SQL,
@@ -103,11 +115,11 @@ public class InventoryAddDAO {
                 if (rs.next()) return rs.getLong(1);
                 else throw new SQLException("No product ID obtained.");
             }
-        } 
+        }
     }
 
-    private void insertInventory(Connection conn, long productId, int quantity, String location
-    ) throws SQLException {
+    // Inserts an inventory record for the given product.
+    private void insertInventory(Connection conn, long productId, int quantity, String location) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(INSERT_INVENTORY_SQL)) {
             ps.setLong(1, productId);
             ps.setInt(2, quantity);
@@ -116,6 +128,7 @@ public class InventoryAddDAO {
         }
     }
 
+    // Sets the inventory quantity for a product.
     public void setInventory(long productId, int quantity) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl)) {
             conn.createStatement().execute("PRAGMA foreign_keys = ON");
@@ -128,5 +141,4 @@ public class InventoryAddDAO {
             }
         }
     }
-
 }

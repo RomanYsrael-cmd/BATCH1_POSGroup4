@@ -6,10 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import Batch1_POSG4.dao.DiscountDAO;
-import Batch1_POSG4.dao.ProductDAO;
-import Batch1_POSG4.model.Discount;
-import Batch1_POSG4.view.ProductView;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,8 +18,17 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
+import Batch1_POSG4.dao.DiscountDAO;
+import Batch1_POSG4.dao.ProductDAO;
+import Batch1_POSG4.model.Discount;
+import Batch1_POSG4.view.ProductView;
+
+// Manages discount creation, editing, and deletion for the POS system.
 public class DiscountController implements Initializable {
 
+    // Instance fields (public)
+
+    // Instance fields (private)
     @FXML private TableView<Discount>    tblDiscountTable;
     @FXML private TextField              txtDiscountCode;
     @FXML private ComboBox<String>       cmbType;
@@ -33,42 +38,36 @@ public class DiscountController implements Initializable {
     @FXML private Button                 btnSubmit;
     @FXML private Button                 btnCancel;
     @FXML private TableColumn<Discount,String> colCode;
-    @FXML private TableColumn<Discount,String>     colItem; 
+    @FXML private TableColumn<Discount,String> colItem; 
     @FXML private TableColumn<Discount,String> colDescription;
     @FXML private TableColumn<Discount,String> colType;
     @FXML private TableColumn<Discount,Double> colAmount;
 
-     private final String dbUrl = "jdbc:sqlite:db/db_pos_g4.db";
+    private final String dbUrl = "jdbc:sqlite:db/db_pos_g4.db";
     private DiscountDAO    discountDAO;
     private long  currentSaleId;
     private ObservableList<Discount>    discounts = FXCollections.observableArrayList();
     private ObservableList<ProductView> products  = FXCollections.observableArrayList();
 
+    // Sets the sale ID for context and loads discounts for that sale.
     public void setSaleId(long saleId) {
         this.currentSaleId = saleId;
         loadDiscounts();
     }
 
-     @Override
+    // Initializes the controller, configures table columns, loads products, and sets up event handlers.
+    @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // 1) DAO
         discountDAO = new DiscountDAO(dbUrl);
 
-        // 2) configure columns
-        colCode
-          .setCellValueFactory(new PropertyValueFactory<>("discountCode"));
-        colItem
-          .setCellValueFactory(new PropertyValueFactory<>("productName"));
-        colDescription
-          .setCellValueFactory(new PropertyValueFactory<>("description"));
-        colType
-          .setCellValueFactory(new PropertyValueFactory<>("discountType"));
-        colAmount
-          .setCellValueFactory(new PropertyValueFactory<>("amount"));
+        colCode.setCellValueFactory(new PropertyValueFactory<>("discountCode"));
+        colItem.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
+        colType.setCellValueFactory(new PropertyValueFactory<>("discountType"));
+        colAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
 
         tblDiscountTable.setItems(discounts);
 
-        // 3) populate “Item” dropdown
         try {
             products.addAll(
                 new ProductDAO().search("", "Name", null)
@@ -90,14 +89,11 @@ public class DiscountController implements Initializable {
             showAlert("DB Error", "Failed to load products:\n" + ex.getMessage());
         }
 
-        // 4) populate “Type” dropdown
         cmbType.getItems().setAll("Percentage", "Fixed Amount");
 
-        // 5) wire buttons
         btnSubmit .setOnAction(this::handlesSubmit);
         btnCancel .setOnAction(this::handlesCancel);
 
-        // 6) initial load of all discounts
         loadDiscounts();
         tblDiscountTable.setRowFactory(tv -> {
             TableRow<Discount> row = new TableRow<>();
@@ -110,6 +106,7 @@ public class DiscountController implements Initializable {
         });
     }
 
+    // Loads all discounts from the database and populates the table.
     private void loadDiscounts() {
         discounts.clear();
         try {
@@ -120,9 +117,9 @@ public class DiscountController implements Initializable {
         }
     }
 
+    // Handles the submit button, validates input, and adds a new discount.
     @FXML
     private void handlesSubmit(ActionEvent ev) {
-        // 1) gather form data
         Discount d = new Discount();
         d.setDiscountCode(txtDiscountCode.getText().trim());
         d.setDescription(txtDescription.getText().trim());
@@ -140,7 +137,6 @@ public class DiscountController implements Initializable {
             d.setProductName(pv.getProductName());
         }
 
-        // 2) persist & refresh
         try {
             discountDAO.addDiscount(d);
             clearForm();
@@ -151,13 +147,14 @@ public class DiscountController implements Initializable {
         }
     }
 
+    // Handles the cancel button, closing the discount dialog.
     @FXML
     private void handlesCancel(ActionEvent ev) {
         Stage st = (Stage) btnCancel.getScene().getWindow();
         st.close();
     }
 
-    /** Clears all form inputs. */
+    // Clears all form inputs for discount entry.
     private void clearForm() {
         txtDiscountCode.clear();
         txtDescription.clear();
@@ -166,7 +163,7 @@ public class DiscountController implements Initializable {
         cmbItem.getSelectionModel().clearSelection();
     }
 
-    /** Convenience alert. */
+    // Shows an alert dialog with the given header and body.
     private void showAlert(String header, String body) {
         Alert a = new Alert(Alert.AlertType.WARNING);
         a.setTitle("Discount Manager");
@@ -175,6 +172,7 @@ public class DiscountController implements Initializable {
         a.showAndWait();
     }
 
+    // Opens a dialog to edit or delete an existing discount.
     private void showEditDiscountDialog(Discount d) {
         Dialog<ButtonType> dlg = new Dialog<>();
         dlg.setTitle("Edit Discount");
@@ -219,13 +217,9 @@ public class DiscountController implements Initializable {
             String newCode = codeField.getText().trim();
             try {
                 if (newCode.isEmpty()) {
-                    // DELETE if user cleared the code
                     discountDAO.deleteByCode(d.getDiscountCode());
                 } else {
-                    // parse & validate amount
                     double newAmt = Double.parseDouble(amountField.getText().trim());
-
-                    // update the Discount object
                     String oldCode = d.getDiscountCode();
                     d.setDiscountCode(newCode);
                     d.setDiscountType(typeBox.getValue());
@@ -240,11 +234,8 @@ public class DiscountController implements Initializable {
                         d.setProductId(0l);
                         d.setProductName(null);
                     }
-
-                    // call the new updateDiscount signature:
                     discountDAO.updateDiscount(d, oldCode);
                 }
-
                 loadDiscounts();
             } catch (NumberFormatException ex) {
                 showAlert("Invalid Amount", "Please enter a valid number.");
@@ -253,6 +244,4 @@ public class DiscountController implements Initializable {
             }
         }
     }
-
-
 }

@@ -7,33 +7,36 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import Batch1_POSG4.dao.InventoryAddDAO;
-import Batch1_POSG4.util.Session;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import javafx.event.ActionEvent;
-
 import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
-import javafx.scene.Node;
-
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-public class AddInventoryController {
-    @FXML private ComboBox<String> cmbCategory;
+import Batch1_POSG4.dao.InventoryAddDAO;
+import Batch1_POSG4.util.Session;
 
+// Handles adding new inventory items to the database and manages the add inventory dialog.
+public class AddInventoryController {
+
+    // Instance fields (public)
+
+    // Instance fields (private)
+    @FXML private ComboBox<String> cmbCategory;
     @FXML private TextField txtPrice;
     @FXML private TextField txtProductCode;
     @FXML private TextField txtProductDescription;
     @FXML private TextField txtProductName;
     @FXML private TextField txtQuantity;
     @FXML private TextField txtLocation;
-    
+
     long currentUserId = Session.get().getCurrentUser().getUserId();
 
+    // Establishes a connection to the SQLite database.
     private Connection connect() {
         String url = "jdbc:sqlite:db/db_pos_g4.db";
         Connection conn = null;
@@ -45,6 +48,7 @@ public class AddInventoryController {
         return conn;
     }
 
+    // Loads all categories from the database and populates the category combo box.
     public void loadCategories() {
         ObservableList<String> list = FXCollections.observableArrayList();
         String sql = "SELECT name FROM tbl_Category";
@@ -60,39 +64,33 @@ public class AddInventoryController {
         }
     }
 
+    // Handles the add button, validates input, registers a new product, and shows confirmation or error.
     @FXML
     private void handlesAdd(ActionEvent event) {
-        // Setup DB connection
         String dbUrl = "jdbc:sqlite:db/db_pos_g4.db";
         InventoryAddDAO svc = new InventoryAddDAO(dbUrl);
 
-        // Get input values
         String pName = txtProductName.getText();
         String pDescription = txtProductDescription.getText();
         Double pPrice = Double.parseDouble(txtPrice.getText());
 
-        //???
+        // Get the selected category index and convert to category ID (assuming 1-based IDs).
         Integer pCategoryID = cmbCategory.getSelectionModel().getSelectedIndex() + 1;
         System.out.println(pCategoryID);
-        //??
 
         String pBarcode = txtProductCode.getText();
         Integer pQuantity = Integer.parseInt(txtQuantity.getText());
-        
         String pLocation = txtLocation.getText();
 
         try {
             long prodId = svc.registerNewProduct(pName, pDescription, pPrice, pCategoryID, pBarcode, pQuantity, pLocation);
-            //System.out.println("New product registered with ID: " + prodId);
 
-            //Show confirmation alert
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Product Registered");
             alert.setHeaderText(null);
             alert.setContentText("New product registered with ID: " + prodId);
             alert.showAndWait();
 
-            //Clear all fields
             txtProductName.clear();
             txtProductDescription.clear();
             txtPrice.clear();
@@ -112,16 +110,16 @@ public class AddInventoryController {
         }
     }
 
+    // Handles the cancel button, closing the add inventory dialog.
     @FXML
-    private void handlesCancel(ActionEvent event) throws IOException{
+    private void handlesCancel(ActionEvent event) throws IOException {
         Stage dlg = (Stage)((Node)event.getSource()).getScene().getWindow();
         dlg.close();
-
     }
 
+    // Handles the clear button, clearing all input fields in the dialog.
     @FXML
     private void handlesClear(ActionEvent event) {
-        //Clear all fields
         txtProductName.clear();
         txtProductDescription.clear();
         txtPrice.clear();

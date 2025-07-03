@@ -1,9 +1,11 @@
-// src/main/java/Batch1_POSG4/util/DeviceInfoUtil.java
 package Batch1_POSG4.util;
 
 import java.net.InetAddress;
 
+// Provides utility methods for retrieving device and environment information.
 public class DeviceInfoUtil {
+
+    // Returns the local IP address of the machine, or "unknown" if unavailable.
     public static String getIpAddress() {
         try {
             return InetAddress.getLocalHost().getHostAddress();
@@ -12,6 +14,7 @@ public class DeviceInfoUtil {
         }
     }
 
+    // Returns a string describing the OS and Java version.
     public static String getDeviceInfo() {
         return System.getProperty("os.name")
              + " " + System.getProperty("os.version")

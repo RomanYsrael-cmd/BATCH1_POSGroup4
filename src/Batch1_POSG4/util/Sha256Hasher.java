@@ -3,16 +3,32 @@ package Batch1_POSG4.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+// Provides SHA-256 hashing functionality for a given input string.
 public class Sha256Hasher {
 
+    // Instance fields (public)
+
+    // Instance fields (private)
     private String input;
     private String hashedOutput;
 
+    // Constructs a Sha256Hasher and computes the hash for the input.
     public Sha256Hasher(String input) {
         this.input = input;
         this.hashedOutput = computeHash(input);
     }
 
+    // Returns the original input string.
+    public String getInput() {
+        return input;
+    }
+
+    // Returns the SHA-256 hash of the input string.
+    public String getHashedOutput() {
+        return hashedOutput;
+    }
+
+    // Computes the SHA-256 hash for the given input string.
     private String computeHash(String input) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -26,13 +42,5 @@ public class Sha256Hasher {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("SHA-256 algorithm not found", e);
         }
-    }
-
-    public String getInput() {
-        return input;
-    }
-
-    public String getHashedOutput() {
-        return hashedOutput;
     }
 }

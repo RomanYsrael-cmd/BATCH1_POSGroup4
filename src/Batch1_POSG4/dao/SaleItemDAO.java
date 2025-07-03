@@ -1,14 +1,26 @@
 package Batch1_POSG4.dao;
 
-import Batch1_POSG4.view.SaleItemView;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.sql.*;
+import Batch1_POSG4.view.SaleItemView;
 
+// Provides database operations for sale items, including add, list, update, and remove.
 public class SaleItemDAO {
+
+    // Instance fields (public)
+
+    // Instance fields (private)
     private final String dbUrl;
 
+    // Private constants
     private static final String INSERT_ITEM_SQL =
         "INSERT INTO tbl_SaleItem(sale_id, product_id, quantity, unit_price, total_price) " +
         "VALUES (?, ?, ?, ?, ? * ?)";
@@ -28,17 +40,18 @@ public class SaleItemDAO {
     private static final String DELETE_ITEM_SQL =
         "DELETE FROM tbl_SaleItem WHERE sale_item_id = ?";
 
+    // Constructs a SaleItemDAO with the specified database URL.
     public SaleItemDAO(String dbUrl) {
         this.dbUrl = dbUrl;
     }
 
+    // Adds a new item to a sale and returns the generated sale_item_id.
     public long addItemToSale(long saleId,
                               long productId,
                               int qty,
                               double unitPrice) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(INSERT_ITEM_SQL, Statement.RETURN_GENERATED_KEYS)) {
-            //ps.execute("PRAGMA foreign_keys = ON");
             ps.setLong(1, saleId);
             ps.setLong(2, productId);
             ps.setInt(3, qty);
@@ -55,6 +68,7 @@ public class SaleItemDAO {
         }
     }
 
+    // Lists all sale items for a given sale ID.
     public ObservableList<SaleItemView> listItemsForSale(long saleId) throws SQLException {
         ObservableList<SaleItemView> list = FXCollections.observableArrayList();
         try (Connection conn = DriverManager.getConnection(dbUrl);
@@ -77,6 +91,7 @@ public class SaleItemDAO {
         return list;
     }
 
+    // Updates the quantity and total price for a sale item.
     public void updateSaleItem(long saleItemId, int newQty) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(UPDATE_ITEM_SQL)) {
@@ -87,6 +102,7 @@ public class SaleItemDAO {
         }
     }
 
+    // Removes a sale item from a sale by its sale_item_id.
     public void removeItemFromSale(long saleItemId) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(DELETE_ITEM_SQL)) {

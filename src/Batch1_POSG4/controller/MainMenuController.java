@@ -1,25 +1,32 @@
 package Batch1_POSG4.controller;
 
+// Standard library imports
 import java.io.IOException;
 
-import Batch1_POSG4.util.Session;
-
+// Third-party packages
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.Node;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+// Project-specific imports
+import Batch1_POSG4.util.Session;
+
+// Controls the main menu, handling navigation to sales, inventory, customers, users, reports, settings, utilities, and logout.
 public class MainMenuController {
 
+    // Instance fields (public)
+
+    // Instance fields (private)
     long me = Session.get().getCurrentUser().getUserId();
 
-    //sales
+    // Opens the sales screen and closes the main menu.
     @FXML
-    private void handleSales(ActionEvent event) throws IOException{
+    private void handleSales(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSSales.fxml"));
         Parent mainSales = loader.load();
 
@@ -38,7 +45,7 @@ public class MainMenuController {
         ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
     }
 
-    //invetory
+    // Opens the inventory screen and closes the main menu.
     @FXML
     private void handleInventory(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSInventory.fxml"));
@@ -59,10 +66,9 @@ public class MainMenuController {
         ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
     }
 
-
-    //customers
+    // Opens the customer management screen and closes the main menu.
     @FXML
-    private void handleCustomer(ActionEvent event) throws IOException{
+    private void handleCustomer(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSCustomer.fxml"));
         Parent mainCustomer = loader.load();
 
@@ -80,12 +86,11 @@ public class MainMenuController {
         stageUsers.show();
 
         ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
-       
     }
 
-    //Employees
+    // Opens the user management screen and closes the main menu.
     @FXML
-    private void handleEmployees(ActionEvent event) throws IOException{
+    private void handleEmployees(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSUsers.fxml"));
         Parent mainUsers = loader.load();
 
@@ -104,9 +109,9 @@ public class MainMenuController {
         ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
     }
 
-    //Reports
+    // Opens the monthly sales report dialog as a modal window.
     @FXML
-    private void handleReports(ActionEvent event) throws IOException{
+    private void handleReports(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(
             "/Batch1_POSG4/view/POSReport.fxml"
         ));
@@ -120,28 +125,27 @@ public class MainMenuController {
         dialog.showAndWait();
     }
 
-    //Settings
+    // Handles opening the settings screen (not implemented).
     @FXML
-    private void handleSettings(ActionEvent event){
-
+    private void handleSettings(ActionEvent event) {
     }
 
-    //Tools/Utilities
+    // Handles opening the utilities/tools screen (not implemented).
     @FXML
-    private void handleUtilitiesTools(ActionEvent event){
-
+    private void handleUtilitiesTools(ActionEvent event) {
     }
-    //exit
+
+    // Logs out the current user and returns to the login screen.
     @FXML
-    private void handleLogoutExit(ActionEvent event) throws IOException{
+    private void handleLogoutExit(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSLogin.fxml"));
         Parent mainLogin = loader.load();
-        
+
         Stage stageLogin = new Stage();
         stageLogin.setTitle("Log In");
         stageLogin.setScene(new Scene(mainLogin));
         stageLogin.show();
-        
+
         Stage menuStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         menuStage.close();
     }

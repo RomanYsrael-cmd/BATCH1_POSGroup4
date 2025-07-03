@@ -10,8 +10,10 @@ import javafx.stage.Stage;
 import Batch1_POSG4.dao.LoginSessionDAO;
 import Batch1_POSG4.util.Session;
 
+// Main JavaFX application entry point. Handles startup, shutdown, and session management.
 public class App extends Application {
 
+    // Initializes the application and registers a shutdown hook for session cleanup.
     @Override
     public void init() throws Exception {
         super.init();
@@ -20,6 +22,7 @@ public class App extends Application {
         }));
     }
 
+    // Starts the JavaFX application and loads the login view.
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("view/POSLogin.fxml"));
@@ -28,13 +31,14 @@ public class App extends Application {
         primaryStage.show();
     }
 
+    // Stops the application and ensures the session is closed.
     @Override
     public void stop() throws Exception {
         super.stop();
-        // JavaFX‐level hook: called on Platform.exit(), last window closed, etc.
         closeCurrentSession();
     }
 
+    // Closes the current login session if one exists.
     private void closeCurrentSession() {
         long sid = Session.get().getSessionId();
         if (sid != 0) {
@@ -46,6 +50,7 @@ public class App extends Application {
         }
     }
 
+    // Launches the JavaFX application.
     public static void main(String[] args) {
         launch(args);
     }

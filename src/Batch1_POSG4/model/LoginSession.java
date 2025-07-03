@@ -1,9 +1,13 @@
-// src/main/java/Batch1_POSG4/model/LoginSession.java
 package Batch1_POSG4.model;
 
 import java.time.LocalDateTime;
 
+// Represents a user login session, including login/logout times and device info.
 public class LoginSession {
+
+    // Instance fields (public)
+
+    // Instance fields (private)
     private long sessionId;
     private long userId;
     private LocalDateTime loginTime;
@@ -11,7 +15,7 @@ public class LoginSession {
     private String ipAddress;
     private String deviceInfo;
 
-    // full constructor (for loading from DB)
+    // Constructs a LoginSession with all fields (for loading from DB).
     public LoginSession(long sessionId, long userId, LocalDateTime loginTime,
                         LocalDateTime logoutTime, String ipAddress, String deviceInfo) {
         this.sessionId   = sessionId;
@@ -22,19 +26,31 @@ public class LoginSession {
         this.deviceInfo  = deviceInfo;
     }
 
-    // constructor for new record (no sessionId yet)
+    // Constructs a LoginSession for a new record (no sessionId yet).
     public LoginSession(long userId, String ipAddress, String deviceInfo) {
         this.userId     = userId;
         this.ipAddress  = ipAddress;
         this.deviceInfo = deviceInfo;
     }
 
-    // getters/setters...
-    public long   getSessionId()   { return sessionId; }
-    public void   setSessionId(long id) { this.sessionId = id; }
-    public long   getUserId()      { return userId; }
+    // Returns the session ID.
+    public long getSessionId() { return sessionId; }
+
+    // Sets the session ID.
+    public void setSessionId(long id) { this.sessionId = id; }
+
+    // Returns the user ID.
+    public long getUserId() { return userId; }
+
+    // Returns the login time.
     public LocalDateTime getLoginTime() { return loginTime; }
+
+    // Returns the logout time.
     public LocalDateTime getLogoutTime() { return logoutTime; }
-    public String getIpAddress()   { return ipAddress; }
-    public String getDeviceInfo()  { return deviceInfo; }
+
+    // Returns the IP address for the session.
+    public String getIpAddress() { return ipAddress; }
+
+    // Returns the device information for the session.
+    public String getDeviceInfo() { return deviceInfo; }
 }

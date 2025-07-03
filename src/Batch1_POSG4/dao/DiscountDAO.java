@@ -1,21 +1,32 @@
-// src/Batch1_POSG4/dao/DiscountDAO.java
 package Batch1_POSG4.dao;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import Batch1_POSG4.model.Discount;
 
+// Provides database operations for Discount entities, including CRUD and lookup by code.
 public class DiscountDAO {
+
+    // Instance fields (public)
+
+    // Instance fields (private)
     private final String dbUrl;
 
+    // Constructs a DiscountDAO with the specified database URL.
     public DiscountDAO(String dbUrl) {
         this.dbUrl = dbUrl;
     }
 
-    /** Fetch all discounts for a given sale */
+    // Retrieves all discounts from the database and returns them as a list.
     public List<Discount> fetchAll() throws SQLException {
         String sql = """
           SELECT d.discount_id,
@@ -50,8 +61,7 @@ public class DiscountDAO {
         }
     }
 
-
-    /** Insert a new discount */
+    // Inserts a new discount into the database.
     public void addDiscount(Discount d) throws SQLException {
         String sql = """
           INSERT INTO tbl_Discount
@@ -78,6 +88,7 @@ public class DiscountDAO {
         }
     }
 
+    // Deletes a discount by its code.
     public void deleteByCode(String code) throws SQLException {
         String sql = "DELETE FROM tbl_Discount WHERE discount_code = ?";
         try (Connection conn = DriverManager.getConnection(dbUrl);
@@ -87,7 +98,7 @@ public class DiscountDAO {
         }
     }
 
-    /** Update an existing discount */
+    // Updates an existing discount identified by its original code.
     public void updateDiscount(Discount d, String originalCode) throws SQLException {
         String sql = """
             UPDATE tbl_Discount
@@ -107,8 +118,7 @@ public class DiscountDAO {
         }
     }
 
-
-    /** Delete a discount by its primary key */
+    // Deletes a discount by its primary key (discount ID).
     public void removeDiscount(long discountId) throws SQLException {
         String sql = "DELETE FROM tbl_Discount WHERE discount_id = ?";
 
@@ -119,6 +129,7 @@ public class DiscountDAO {
         }
     }
 
+    // Finds a discount by its code and returns it as an Optional.
     public Optional<Discount> findByCode(String code) throws SQLException {
         String sql = """
           SELECT d.discount_id,
@@ -154,5 +165,4 @@ public class DiscountDAO {
             }
         }
     }
-
 }

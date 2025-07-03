@@ -1,21 +1,32 @@
 package Batch1_POSG4.dao;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+// Provides reporting operations for sales data, including available periods and totals per period.
 public class ReportDAO {
-    private final String dbUrl;
-    private static final DateTimeFormatter UI_FMT = DateTimeFormatter.ofPattern("MMMM yyyy");
+
+    // Private constants
+    private static final DateTimeFormatter UI_FMT  = DateTimeFormatter.ofPattern("MMMM yyyy");
     private static final DateTimeFormatter SQL_FMT = DateTimeFormatter.ofPattern("yyyy-MM");
 
+    // Instance fields (private)
+    private final String dbUrl;
+
+    // Constructs a ReportDAO with the specified database URL.
     public ReportDAO(String dbUrl) {
         this.dbUrl = dbUrl;
     }
 
+    // Retrieves all available sales periods as formatted strings for the UI.
     public ObservableList<String> fetchAvailablePeriods() throws SQLException {
         String sql = """
             SELECT DISTINCT strftime('%Y-%m', sale_date) AS ym
@@ -36,6 +47,7 @@ public class ReportDAO {
         }
     }
 
+    // Returns the total sales amount for the given UI period string.
     public double fetchTotalForPeriod(String uiPeriod) throws SQLException {
         YearMonth ym = YearMonth.parse(uiPeriod, UI_FMT);
         String ymSql = ym.format(SQL_FMT);

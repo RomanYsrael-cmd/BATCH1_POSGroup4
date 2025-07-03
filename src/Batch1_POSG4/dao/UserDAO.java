@@ -1,15 +1,28 @@
 package Batch1_POSG4.dao;
 
-import Batch1_POSG4.model.User;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.sql.*;
-import java.time.LocalDateTime;
+import Batch1_POSG4.model.User;
 
+// Provides database operations for User entities, including CRUD.
 public class UserDAO {
+
+    // Instance fields (public)
+
+    // Instance fields (private)
     private final String dbUrl;
 
+    // Private constants
     private static final String INSERT_SQL =
         "INSERT INTO tbl_User(username, password_hash, role) VALUES (?, ?, ?)";
     private static final String SELECT_ALL_SQL =
@@ -19,10 +32,12 @@ public class UserDAO {
     private static final String DELETE_SQL =
         "DELETE FROM tbl_User WHERE user_id = ?";
 
+    // Constructs a UserDAO with the specified database URL.
     public UserDAO(String dbUrl) {
         this.dbUrl = dbUrl;
     }
 
+    // Retrieves all users from the database and returns them as an ObservableList.
     public ObservableList<User> listAllUsers() throws SQLException {
         ObservableList<User> list = FXCollections.observableArrayList();
         try (Connection conn = DriverManager.getConnection(dbUrl);
@@ -41,6 +56,7 @@ public class UserDAO {
         return list;
     }
 
+    // Adds a new user to the database.
     public void addUser(String username,
                         String passwordHash,
                         String role) throws SQLException {
@@ -58,7 +74,7 @@ public class UserDAO {
         }
     }
 
-
+    // Updates the username and role for a user with the specified ID.
     public void updateUser(long userId,
                            String username,
                            String role) throws SQLException {
@@ -71,7 +87,7 @@ public class UserDAO {
         }
     }
 
-
+    // Deletes a user by their user ID.
     public void deleteUser(long userId) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(DELETE_SQL)) {

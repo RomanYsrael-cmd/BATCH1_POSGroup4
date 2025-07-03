@@ -1,14 +1,20 @@
 package Batch1_POSG4.dao;
 
-import Batch1_POSG4.util.DBConnection;
-import Batch1_POSG4.view.ProductView;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.sql.*;
+import Batch1_POSG4.util.DBConnection;
+import Batch1_POSG4.view.ProductView;
 
+// Provides product-related database operations, including inventory and category queries.
 public class ProductDAO {
 
+    // Retrieves all products with their categories and inventory, returning as ProductView list.
     public ObservableList<ProductView> fetchInventoryWithCategory() {
         ObservableList<ProductView> list = FXCollections.observableArrayList();
         String sql = """
@@ -45,6 +51,7 @@ public class ProductDAO {
         return list;
     }
 
+    // Retrieves all categories from the database and returns them as Category objects.
     public ObservableList<Category> fetchAllCategories() {
         ObservableList<Category> list = FXCollections.observableArrayList();
         String sql = "SELECT category_id, name FROM tbl_Category ORDER BY name";
@@ -66,6 +73,7 @@ public class ProductDAO {
         return list;
     }
 
+    // Searches for products by filter term, search column, and optional category, returning ProductView list.
     public ObservableList<ProductView> search(
             String filterTerm,
             String searchBy,
@@ -129,15 +137,24 @@ public class ProductDAO {
         return list;
     }
 
+    // Represents a product category with ID and name.
     public static class Category {
         private final Integer categoryId;
         private final String  name;
+
+        // Constructs a Category with the given ID and name.
         public Category(Integer categoryId, String name) {
             this.categoryId = categoryId;
             this.name       = name;
         }
+
+        // Returns the category ID.
         public Integer getCategoryId() { return categoryId; }
+
+        // Returns the category name.
         public String  getName()       { return name; }
+
+        // Returns the category name as string.
         @Override
         public String toString() { return name; }
     }

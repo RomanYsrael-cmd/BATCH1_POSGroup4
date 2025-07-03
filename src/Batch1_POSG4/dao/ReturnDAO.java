@@ -1,14 +1,21 @@
 package Batch1_POSG4.dao;
 
-import Batch1_POSG4.model.ReturnModel;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.sql.*;
+import Batch1_POSG4.model.ReturnModel;
 
+// Provides database operations for processing returns, updating inventory, and retrieving return records.
 public class ReturnDAO {
-    private final String dbUrl;
 
+    // Private constants
     private static final String INSERT_RETURN_SQL =
         "INSERT INTO tbl_Return(sale_item_id, reason, refund_amount) VALUES (?, ?, ?)";
 
@@ -29,10 +36,15 @@ public class ReturnDAO {
     private static final String UPDATE_INVENTORY_SQL =
         "UPDATE tbl_Inventory SET quantity = quantity + ? WHERE product_id = ?";
 
+    // Instance fields (private)
+    private final String dbUrl;
+
+    // Constructs a ReturnDAO with the specified database URL.
     public ReturnDAO(String dbUrl) {
         this.dbUrl = dbUrl;
     }
 
+    // Processes a return, inserts a return record, and optionally restocks inventory.
     public long processReturn(long saleItemId,
                               String reason,
                               double refundAmount,
@@ -61,7 +73,7 @@ public class ReturnDAO {
             if (restock) {
                 long productId;
                 int qty;
-                // fetch original sale quantity + product
+                // Fetch original sale quantity and product ID for restocking.
                 try (PreparedStatement ps1 = conn.prepareStatement(SELECT_SALEITEM_SQL)) {
                     ps1.setLong(1, saleItemId);
                     try (ResultSet rs1 = ps1.executeQuery()) {
@@ -72,7 +84,7 @@ public class ReturnDAO {
                         qty       = rs1.getInt("quantity");
                     }
                 }
-                // update inventory
+                // Update inventory with returned quantity.
                 try (PreparedStatement ps2 = conn.prepareStatement(UPDATE_INVENTORY_SQL)) {
                     ps2.setInt(1, qty);
                     ps2.setLong(2, productId);
@@ -85,6 +97,7 @@ public class ReturnDAO {
         }
     }
 
+    // Retrieves a return record by its ID.
     public ReturnModel getReturnById(long returnId) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(SELECT_BY_ID_SQL)) {
@@ -102,6 +115,7 @@ public class ReturnDAO {
         }
     }
 
+    // Lists all returns for a given sale ID.
     public ObservableList<ReturnModel> listReturnsForSale(long saleId) throws SQLException {
         ObservableList<ReturnModel> results = FXCollections.observableArrayList();
         try (Connection conn = DriverManager.getConnection(dbUrl);

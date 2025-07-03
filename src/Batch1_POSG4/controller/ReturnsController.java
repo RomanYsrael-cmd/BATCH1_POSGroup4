@@ -1,20 +1,42 @@
 package Batch1_POSG4.controller;
 
-import Batch1_POSG4.dao.ReturnDAO;
-import Batch1_POSG4.dao.SaleItemDAO;
-import Batch1_POSG4.model.ReturnModel;
-import Batch1_POSG4.view.SaleItemView;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.*;
-
+// Standard library imports
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 
+// Third-party packages
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+
+// Project-specific imports
+import Batch1_POSG4.dao.ReturnDAO;
+import Batch1_POSG4.dao.SaleItemDAO;
+import Batch1_POSG4.model.ReturnModel;
+import Batch1_POSG4.view.SaleItemView;
+
+// Handles product returns, including searching for sales, processing returns, and updating inventory.
 public class ReturnsController implements Initializable {
 
+    // Public constants
+
+    // Private constants
+
+    // Public static fields
+
+    // Private static fields
+
+    // Public instance fields
+
+    // Private instance fields
     @FXML private TextField txtTransaction;
     @FXML private Button btnSearchSale;
     @FXML private TableView<SaleItemView> tblTransactionList;
@@ -35,35 +57,33 @@ public class ReturnsController implements Initializable {
     private SaleItemDAO saleItemDAO;
     private ReturnDAO returnDAO;
     private ObservableList<SaleItemView> saleItems;
-    
+
+    // Initialize the controller, DAOs, table columns, and selection listeners.
     @SuppressWarnings("unused")
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Initialize DAOs
         saleItemDAO = new SaleItemDAO(dbUrl);
         returnDAO   = new ReturnDAO(dbUrl);
 
-        // Bind TableView items
         saleItems = tblTransactionList.getItems();
 
-        // Configure columns
         colProduct.setCellValueFactory(cell -> cell.getValue().productNameProperty());
         colUnitPrice.setCellValueFactory(cell -> cell.getValue().unitPriceProperty().asObject());
         colQtySold.setCellValueFactory(cell -> cell.getValue().quantityProperty().asObject());
         colSubtotal.setCellValueFactory(cell -> cell.getValue().totalPriceProperty().asObject());
 
-        // Allow single-row selection
         tblTransactionList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         tblTransactionList.getSelectionModel()
             .selectedItemProperty()
             .addListener((obs, oldSel, newSel) -> {
+                // Populate details when a new row is selected
                 if (newSel != null) populateDetails(newSel);
             });
 
-        // Disable process until an item is selected
         btnProcess.setDisable(true);
     }
 
+    // Search for sale items by transaction number and populate the table.
     @FXML
     private void handlesSearchSale() {
         String txn = txtTransaction.getText().trim();
@@ -85,6 +105,7 @@ public class ReturnsController implements Initializable {
         }
     }
 
+    // Populate the detail fields with the selected sale item's information.
     private void populateDetails(SaleItemView item) {
         txtItem.setText(item.getProductName());
         txtSoldQty.setText(String.valueOf(item.getQuantity()));
@@ -94,6 +115,7 @@ public class ReturnsController implements Initializable {
         btnProcess.setDisable(false);
     }
 
+    // Process the return for the selected sale item, update inventory, and show confirmation.
     @FXML
     private void handlesProcess() {
         SaleItemView selected = tblTransactionList.getSelectionModel().getSelectedItem();
@@ -116,11 +138,9 @@ public class ReturnsController implements Initializable {
                 chkRestock.isSelected()
             );
 
-            // Remove the returned sale item
             saleItemDAO.removeItemFromSale(selected.getSaleItemId());
             saleItems.remove(selected);
 
-            // Show confirmation
             ReturnModel ret = returnDAO.getReturnById(returnId);
             showAlert("Success", "Return processed (ID: " + ret.getReturnId() + ")", Alert.AlertType.INFORMATION);
 
@@ -131,6 +151,7 @@ public class ReturnsController implements Initializable {
         }
     }
 
+    // Cancel the current operation, clear selections and reset fields.
     @FXML
     private void handlesCancel() {
         tblTransactionList.getSelectionModel().clearSelection();
@@ -140,6 +161,7 @@ public class ReturnsController implements Initializable {
         btnProcess.setDisable(true);
     }
 
+    // Clear all detail fields and reset restock checkbox.
     private void clearDetails() {
         txtItem.clear();
         txtSoldQty.clear();
@@ -148,6 +170,7 @@ public class ReturnsController implements Initializable {
         chkRestock.setSelected(false);
     }
 
+    // Show an alert dialog with the specified title, message, and type.
     private void showAlert(String title, String msg, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

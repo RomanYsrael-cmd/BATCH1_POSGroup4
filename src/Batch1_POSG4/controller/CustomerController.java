@@ -3,9 +3,6 @@ package Batch1_POSG4.controller;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import Batch1_POSG4.dao.CustomerDAO;
-
-import Batch1_POSG4.model.Customer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.ObservableList;
@@ -20,18 +17,33 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import Batch1_POSG4.dao.CustomerDAO;
+import Batch1_POSG4.model.Customer;
+
+// Manages customer selection, addition, and dialog interactions for the POS system.
 public class CustomerController {
+
+    // Instance fields (public)
+    @FXML public Button btnSelectCustomer;
+
+    // Instance fields (private)
     @FXML private TableView<Customer> tblCustomers;
     @FXML private TableColumn<Customer, Integer> colCustomerID;
     @FXML private TableColumn<Customer, String> colName;
     @FXML private TableColumn<Customer, String> colEmail;
     @FXML private TableColumn<Customer, String> colPhone;
     @FXML private TableColumn<Customer, Integer> colLoyalty;
-    @FXML public Button btnSelectCustomer;
+    @FXML private Button btnAddNewCustomer;
+    @FXML private Button btnCancel;
+    @FXML private Button btnClear;
+    @FXML private TextField txtEmail;
+    @FXML private TextField txtName;
+    @FXML private TextField txtPhone;
 
     private Customer selectedCustomer;
     private final String dbUrl = "jdbc:sqlite:db/db_pos_g4.db";
 
+    // Initializes the customer table columns and loads all customers from the database.
     @FXML
     public void initialize() {
         colCustomerID.setCellValueFactory(cell -> 
@@ -45,7 +57,6 @@ public class CustomerController {
         colLoyalty.setCellValueFactory(cell ->
             new ReadOnlyObjectWrapper<>(cell.getValue().getLoyaltyPoints()));
 
-        // load data
         try {
             ObservableList<Customer> data = new CustomerDAO(dbUrl).fetchAll();
             tblCustomers.setItems(data);
@@ -54,6 +65,7 @@ public class CustomerController {
         }
     }
 
+    // Handles selecting a customer from the table and closes the dialog if a selection is made.
     @FXML
     private void handlesSelectCustomer() {
         this.selectedCustomer = tblCustomers.getSelectionModel().getSelectedItem();
@@ -65,29 +77,12 @@ public class CustomerController {
         }
     }
 
-    /** Called by the caller after showAndWait() */
+    // Returns the customer selected by the user after the dialog closes.
     public Customer getSelectedCustomer() {
         return selectedCustomer;
     }
 
-    @FXML
-    private Button btnAddNewCustomer;
-
-    @FXML
-    private Button btnCancel;
-
-    @FXML
-    private Button btnClear;
-
-    @FXML
-    private TextField txtEmail;
-
-    @FXML
-    private TextField txtName;
-
-    @FXML
-    private TextField txtPhone;
-
+    // Handles adding a new customer to the database and updates the table.
     @FXML
     void handlesAddNewCustomer(ActionEvent event) {
         String name  = txtName.getText().trim();
@@ -100,21 +95,15 @@ public class CustomerController {
 
         try {
             Customer newCust = new CustomerDAO(dbUrl).create(name, email, phone);
-            // reload table so the new one appears:
             tblCustomers.getItems().add(newCust);
-
-            // optionally auto-select the newly added row:
             tblCustomers.getSelectionModel().select(newCust);
-
-            // clear the form
             handlesClear(event);
-
         } catch (SQLException ex) {
             ex.printStackTrace();
-            // show error to user…
         }
     }
 
+    // Clears the customer input fields.
     @FXML
     private void handlesClear(ActionEvent event) {
         txtName.clear();
@@ -122,18 +111,19 @@ public class CustomerController {
         txtPhone.clear();
     }
 
+    // Handles canceling the dialog, closing the window without selection.
     @FXML
     private void handlesCancel(ActionEvent event) {
-        // simply close the dialog without selecting
         Stage stage = (Stage) btnCancel.getScene().getWindow();
         stage.close();
     }
 
+    // Closes the customer dialog and returns to the main menu.
     public void handleClose(Stage userStage, MainMenuController caller) {
         try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSMainMenu.fxml"));
-        btnSelectCustomer.setDisable(false);    
-        Parent mainMenu = loader.load();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Batch1_POSG4/view/POSMainMenu.fxml"));
+            btnSelectCustomer.setDisable(false);    
+            Parent mainMenu = loader.load();
             Stage mainMenuStage = new Stage();
             mainMenuStage.setScene(new Scene(mainMenu));
             mainMenuStage.setTitle("Main Menu");
