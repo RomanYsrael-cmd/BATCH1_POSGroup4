@@ -1,4 +1,3 @@
-// File: Batch1_POSG4/util/Session.java
 package Batch1_POSG4.util;
 
 import Batch1_POSG4.model.User;

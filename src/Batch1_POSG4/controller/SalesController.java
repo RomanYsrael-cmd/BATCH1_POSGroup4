@@ -11,11 +11,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 import java.nio.file.Path;
 
 // 2. JavaFX import
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -34,18 +36,23 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import Batch1_POSG4.view.ProductView;
+
 // 3. Project import
 import Batch1_POSG4.view.SaleItemView;
 import Batch1_POSG4.view.TotalsView;
+import Batch1_POSG4.dao.CustomerDAO;
 import Batch1_POSG4.dao.InventoryAddDAO;
 import Batch1_POSG4.dao.ProductDAO;
 import Batch1_POSG4.dao.ProductDAO.Category;
@@ -54,7 +61,6 @@ import Batch1_POSG4.dao.SaleDAO;
 import Batch1_POSG4.model.Customer;
 import Batch1_POSG4.util.PdfReceiptGenerator;
 import Batch1_POSG4.util.Session;
-
 
 
 public class SalesController {
@@ -103,7 +109,6 @@ public class SalesController {
     @FXML private Button btnNewTxn;
     @FXML private ComboBox<String>        cmbSearchBy;
     @FXML private ComboBox<ProductDAO.Category> cmbCategories;
-
     //private boolean barcodeMode = false;
     //private StringBuilder barcodeBuffer = new StringBuilder();
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -113,8 +118,8 @@ public class SalesController {
     private long currentSaleId;
     private final ObservableList<TotalsView> totalsData = FXCollections.observableArrayList();
     private final StringBuilder barcodeBuffer = new StringBuilder();
-    private Integer selectedCustomerId;  // from your Customer picker
-    private String  paymentMethod = "Cash"; // or pulled from the UI
+    private Integer selectedCustomerId;
+    private String  paymentMethod = "Cash";
     long currentUserId = Session.get().getCurrentUser().getUserId();
 
     @FXML
@@ -153,9 +158,7 @@ public class SalesController {
             }
         });
 
-        txtPayment.setDisable(true);
-        txtChange.setDisable(true);
-        txtBarcode.setDisable(true);
+        disableControls();
             
         cmbSearchBy.getItems().setAll("Name","Barcode");
         cmbSearchBy.getSelectionModel().selectFirst();
@@ -173,6 +176,51 @@ public class SalesController {
 
         // 4) initial load
         refreshProducts();
+            Platform.runLater(() -> {
+        Scene scene = btnOpenCash.getScene();
+        if (scene == null) return;
+
+        // F1 → Open Cash
+        scene.getAccelerators().put(
+            new KeyCodeCombination(KeyCode.F1),
+            () -> btnOpenCash.fire()
+        );
+
+        // F3 → Toggle Barcode Mode
+        scene.getAccelerators().put(
+            new KeyCodeCombination(KeyCode.F3),
+            () -> btnBarcode.fire()
+        );
+
+        // F6 → Discount
+        scene.getAccelerators().put(
+            new KeyCodeCombination(KeyCode.F6),
+            () -> btnDiscount.fire()
+        );
+
+        // F7 → Void
+        scene.getAccelerators().put(
+            new KeyCodeCombination(KeyCode.F7),
+            () -> btnVoid.fire()
+        );
+
+        // F9 → Returns
+        scene.getAccelerators().put(
+            new KeyCodeCombination(KeyCode.F9),
+            () -> btnReturn.fire()
+        );
+    });
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String newText = change.getControlNewText();
+            // regex: any number of digits, optionally one “.” plus any number of digits
+            if (newText.matches("\\d*(\\.\\d*)?")) {
+                return change;
+            }
+            return null; // reject change
+        };
+        
+        TextFormatter<String> formatter = new TextFormatter<>(filter);
+        txtPayment.setTextFormatter(formatter);
 
     }
     private void refreshProducts() {
@@ -392,7 +440,7 @@ public class SalesController {
 
     @FXML
     void handlesCustomer(ActionEvent event) throws IOException {
-            // a) load the FXML
+        // a) load the FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource(
         "/Batch1_POSG4/view/POSCustomer.fxml"
         ));
@@ -551,6 +599,11 @@ public class SalesController {
             return;
         }
 
+        if (txtPayment.getLength() == 0){
+            showAlert("No payment set", "Paayment error.");
+            return;
+        }
+
         double paid      = Double.parseDouble(txtPayment.getText().trim());
         double grandTotal= totalsData.get(2).getAmount();
         if (paid < grandTotal) {
@@ -602,11 +655,33 @@ public class SalesController {
 
             
             conn.commit();
+
+            if (selectedCustomerId != null) {
+                int pointsEarned = (int) (grandTotal / 100);
+
+                try {
+                    CustomerDAO custDao = new CustomerDAO(dbUrl);
+                    int newTotal = custDao.addLoyaltyPoints(selectedCustomerId, pointsEarned);
+                    showAlert("Loyalty Points Awarded",
+                            "Awarded " +
+                            pointsEarned + 
+                            " points, your new total is " +
+                            newTotal
+                            );
+                            
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+
+                    showAlert("Loyalty Error",
+                            "Sale completed, but failed to update loyalty points:\n"
+                            + ex.getMessage());
+                }
+            }
+
             showAlert("Payment Complete",
                     String.format("Transaction #%d OK. Change: PHP %.2f",
                                     currentSaleId, paid - grandTotal));
 
-            // disable further editing for this sale
             btnProceedPayment.setDisable(true);
             txtBarcode      .setDisable(true);
 
@@ -620,30 +695,56 @@ public class SalesController {
     void handlesNewTransaction(ActionEvent event) {
         try {
             SaleDAO saleDao = new SaleDAO(dbUrl);
-            // pass null customerId for walk‐in; update later if they choose a customer
             currentSaleId = saleDao.createSale(currentUserId, null, paymentMethod);
 
-            // show it in the UI
             txtTransactionNumber.setText(Long.toString(currentSaleId));
 
-            // clear any leftover lines & totals
             saleItems.clear();
             totalsData.clear();
             txtPayment.clear();
             txtChange.clear();
-
-            // enable scanning and payment now that we have a sale in progress
             
-            txtPayment.setDisable(false);
-            txtChange.setDisable(false);
-            txtBarcode.setDisable(false);
-            btnProceedPayment.setDisable(false);
-            txtBarcode.setDisable(false);
-            btnNewTxn.setDisable(true);  // one sale at a time
+            enableControls();
 
         } catch (SQLException ex) {
             ex.printStackTrace();
             showAlert("DB Error", "Failed to start new transaction:\n" + ex.getMessage());
         }
+    }
+    
+    @FXML
+    void enableControls(){
+        btnItem1.setDisable(false);
+        btnItem2.setDisable(false);
+        btnItem3.setDisable(false);
+        btnItem4.setDisable(false);
+        btnItem5.setDisable(false);
+        btnItem6.setDisable(false);
+        btnItem7.setDisable(false);
+        btnItem8.setDisable(false);
+        btnItem9.setDisable(false);
+        txtPayment.setDisable(false);
+        txtBarcode.setDisable(false);
+        txtDiscount.setDisable(false);
+        txtSearchItem.setDisable(false);;
+        btnProceedPayment.setDisable(false);
+    }
+
+    @FXML
+    void disableControls() {
+        btnItem1.setDisable(true);
+        btnItem2.setDisable(true);
+        btnItem3.setDisable(true);
+        btnItem4.setDisable(true);
+        btnItem5.setDisable(true);
+        btnItem6.setDisable(true);
+        btnItem7.setDisable(true);
+        btnItem8.setDisable(true);
+        btnItem9.setDisable(true);
+        txtPayment.setDisable(true);
+        txtBarcode.setDisable(true);
+        txtDiscount.setDisable(true);
+        txtSearchItem.setDisable(true);
+        btnProceedPayment.setDisable(true);
     }
 }

@@ -17,16 +17,15 @@ public class InventoryAddDAO {
     private static final String UPDATE_INVENTORY_SQL =
         "UPDATE tbl_Inventory SET quantity = quantity + ? WHERE product_id = ?";
 
+    private static final String SET_INVENTORY_SQL =
+        "UPDATE tbl_Inventory SET quantity = ? WHERE product_id = ?";
+
     private final String dbUrl;
 
     public InventoryAddDAO(String dbUrl) {
         this.dbUrl = dbUrl;
     }
-
-    /**
-     * Registers a new product and seeds its initial inventory.
-     * @return the generated product_id
-     */
+    
     public long registerNewProduct(
             String name,
             String description,
@@ -47,12 +46,7 @@ public class InventoryAddDAO {
             return productId;
         }
     }
-
-    /**
-     * Adjusts inventory using its own connection (not recommended for multi-step transactions).
-     * @param productId the product to update
-     * @param delta     positive to add, negative to subtract
-     */
+    
     public void adjustInventory(long productId, int delta) throws SQLException {
         try (Connection conn = DriverManager.getConnection(dbUrl)) {
             conn.createStatement().execute("PRAGMA foreign_keys = ON");
@@ -76,16 +70,8 @@ public class InventoryAddDAO {
         }
     }
 
-    // … insertProduct and insertInventory unchanged …
-    private long insertProduct(
-        Connection conn,
-        String name,
-        String description,
-        double price,
-        int quantity,
-        int categoryId,
-        String barcode
-    ) throws SQLException {
+    //Insert Product
+    private long insertProduct(Connection conn, String name, String description, double price, int quantity, int categoryId, String barcode) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
                 INSERT_PRODUCT_SQL,
                 Statement.RETURN_GENERATED_KEYS
@@ -104,14 +90,10 @@ public class InventoryAddDAO {
                 if (rs.next()) return rs.getLong(1);
                 else throw new SQLException("No product ID obtained.");
             }
-        }
+        } 
     }
 
-    private void insertInventory(
-        Connection conn,
-        long productId,
-        int quantity,
-        String location
+    private void insertInventory(Connection conn, long productId, int quantity, String location
     ) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(INSERT_INVENTORY_SQL)) {
             ps.setLong(1, productId);
@@ -120,4 +102,18 @@ public class InventoryAddDAO {
             ps.executeUpdate();
         }
     }
+
+    public void setInventory(long productId, int quantity) throws SQLException {
+        try (Connection conn = DriverManager.getConnection(dbUrl)) {
+            conn.createStatement().execute("PRAGMA foreign_keys = ON");
+            try (PreparedStatement ps = conn.prepareStatement(SET_INVENTORY_SQL)) {
+                ps.setInt(1, quantity);
+                ps.setLong(2, productId);
+                if (ps.executeUpdate() == 0) {
+                    throw new SQLException("No inventory record found for product_id=" + productId);
+                }
+            }
+        }
+    }
+
 }

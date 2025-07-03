@@ -11,7 +11,7 @@
 
 <VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="592.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Batch1_POSG4.controller.AddInventoryController">
    <children>
-      <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Product Code" VBox.vgrow="ALWAYS">
+      <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Barcode" VBox.vgrow="ALWAYS">
          <font>
             <Font size="15.0" />
          </font>
@@ -22,7 +22,7 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </padding>
       </Label>
-      <TextField fx:id="txtProductCode" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Product Code" VBox.vgrow="ALWAYS">
+      <TextField fx:id="txtProductCode" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Barcode" VBox.vgrow="ALWAYS">
          <VBox.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </VBox.margin>

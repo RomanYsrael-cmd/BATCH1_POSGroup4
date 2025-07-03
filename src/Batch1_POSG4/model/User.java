@@ -9,7 +9,6 @@ public class User {
     private String role;
     private LocalDateTime createdAt;
 
-    /** DAO‐friendly constructor */
     public User(long userId,
                 String username,
                 String passwordHash,
@@ -22,13 +21,9 @@ public class User {
         this.createdAt    = createdAt;
     }
 
-    // (plus your zero-arg or other constructors if you need them)
-
-    // getters/setters...
     public long getUserId() { return userId; }
     public String getUsername() { return username; }
     public String getPasswordHash() { return passwordHash; }
     public String getRole() { return role; }
     public LocalDateTime getCreatedAt() { return createdAt; }
-    // … setters if you need them …
 }

@@ -36,7 +36,6 @@ public class ProductView {
     public SimpleStringProperty barcodeProperty() { return barcode; }
     @Override
     public String toString() {
-        // show name and price, or whatever you like:
         return String.format("%s (₱%.2f)", getProductName(), getPrice());
     }
 }

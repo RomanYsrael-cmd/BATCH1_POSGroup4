@@ -6,9 +6,6 @@ import javafx.collections.ObservableList;
 
 import java.sql.*;
 
-/**
- * Data access for tbl_Customer.
- */
 public class CustomerDAO {
     private final String dbUrl;
 
@@ -16,9 +13,6 @@ public class CustomerDAO {
         this.dbUrl = dbUrl;
     }
 
-    /**
-     * Fetches all customers from the database.
-     */
     public ObservableList<Customer> fetchAll() throws SQLException {
         String sql = """
             SELECT customer_id,
@@ -56,7 +50,6 @@ public class CustomerDAO {
             INSERT INTO tbl_Customer (name, email, phone)
             VALUES (?, ?, ?)
             """;
-
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS))
         {
@@ -80,4 +73,52 @@ public class CustomerDAO {
             }
         }
     }
+
+    public void updateLoyaltyPoints(int customerId, int points) throws SQLException {
+        String sql = """
+            UPDATE tbl_Customer
+               SET loyalty_points = ?
+             WHERE customer_id = ?
+            """;
+        try (Connection conn = DriverManager.getConnection(dbUrl);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, points);
+            ps.setInt(2, customerId);
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new SQLException("No customer found with ID " + customerId);
+            }
+        }
+    }
+    
+    public int addLoyaltyPoints(int customerId, int delta) throws SQLException {
+        String sql = """
+            UPDATE tbl_Customer
+               SET loyalty_points = loyalty_points + ?
+             WHERE customer_id = ?
+            """;
+        try (Connection conn = DriverManager.getConnection(dbUrl);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, delta);
+            ps.setInt(2, customerId);
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new SQLException("No customer found with ID " + customerId);
+            }
+        }
+
+        // fetch the updated total
+        String query = "SELECT loyalty_points FROM tbl_Customer WHERE customer_id = ?";
+        try (Connection conn = DriverManager.getConnection(dbUrl);
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, customerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("loyalty_points");
+                }
+                throw new SQLException("Failed to fetch updated loyalty points");
+            }
+        }
+    }
+
 }
