@@ -20,7 +20,7 @@ public final class PdfReceiptGenerator {
                             double grand, double paid, double change)
                             throws IOException {
 
-        final float W    = 80f * 2.835f;      // 80-mm roll  ➜  points
+        final float W    = 80f * 2.835f;
         final float TOP  = 10f, LEFT = 4f;
         final float FONT = 9f,  LEAD = FONT * 1.15f;
         

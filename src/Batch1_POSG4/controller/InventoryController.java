@@ -63,7 +63,6 @@ public class InventoryController  {
     private int currentPageIndex = 0;
     private ObservableList<ProductView> pageData;
     long currentUserId = Session.get().getCurrentUser().getUserId();
-    private static boolean hasPaid = false;
 
     @FXML
     public void initialize() {

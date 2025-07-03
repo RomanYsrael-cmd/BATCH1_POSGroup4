@@ -23,26 +23,14 @@ import javafx.scene.Node;
 import javafx.stage.Stage;
 
 public class AddInventoryController {
-    @FXML
-    private ComboBox<String> cmbCategory;
+    @FXML private ComboBox<String> cmbCategory;
 
-    @FXML
-    private TextField txtPrice;
-
-    @FXML
-    private TextField txtProductCode;
-
-    @FXML
-    private TextField txtProductDescription;
-
-    @FXML
-    private TextField txtProductName;
-
-    @FXML
-    private TextField txtQuantity;
-    
-    @FXML
-    private TextField txtLocation;
+    @FXML private TextField txtPrice;
+    @FXML private TextField txtProductCode;
+    @FXML private TextField txtProductDescription;
+    @FXML private TextField txtProductName;
+    @FXML private TextField txtQuantity;
+    @FXML private TextField txtLocation;
     
     long currentUserId = Session.get().getCurrentUser().getUserId();
 

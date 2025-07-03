@@ -1,12 +1,26 @@
 package Batch1_POSG4;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class App extends Application{
+import Batch1_POSG4.dao.LoginSessionDAO;
+import Batch1_POSG4.util.Session;
+
+public class App extends Application {
+
+    @Override
+    public void init() throws Exception {
+        super.init();
+        // JVM-level hook: even if someone calls System.exit(0), this runs
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            closeCurrentSession();
+        }));
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("view/POSLogin.fxml"));
@@ -14,6 +28,25 @@ public class App extends Application{
         primaryStage.setTitle("Login");
         primaryStage.show();
     }
+
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+        // JavaFX‐level hook: called on Platform.exit(), last window closed, etc.
+        closeCurrentSession();
+    }
+
+    private void closeCurrentSession() {
+        long sid = Session.get().getSessionId();
+        if (sid != 0) {
+            try {
+                new LoginSessionDAO().closeSession(sid);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static void main(String[] args) {
         launch(args);
     }
